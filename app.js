@@ -74,9 +74,9 @@
       if (!saved || !Array.isArray(saved.questions) || !saved.questions.length) return;
       const valid = saved.questions.every((id) => state.questionMap.has(id));
       if (!valid || !["practice", "exam"].includes(saved.mode)) return;
-      state.hasSaved = true;
-      $("#restore-banner").hidden = false;
-      state.savedSession = saved;
+      state.session = saved;
+      state.view = saved.mode;
+      announce("Đã khôi phục phiên làm bài của bạn.");
     } catch (_) {}
   }
 
