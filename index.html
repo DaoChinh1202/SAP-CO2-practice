@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SAP-C02 Offline — luyện tập và thi thử AWS Solutions Architect Professional bằng tiếng Việt.">
+  <title>SAP-C02 Offline</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Điều hướng chính">
+      <a class="brand" href="#home" data-nav="home" aria-label="SAP-C02 Offline, Trang chủ">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span><strong>SAP-C02</strong><small>OFFLINE</small></span>
+      </a>
+      <nav class="side-nav">
+        <button type="button" class="nav-item active" data-nav="home"><span aria-hidden="true">⌂</span><span>Trang chủ</span></button>
+        <button type="button" class="nav-item" data-nav="practice"><span aria-hidden="true">⌁</span><span>Luyện tập</span></button>
+        <button type="button" class="nav-item" data-nav="exam"><span aria-hidden="true">▣</span><span>Thi thử</span></button>
+        <button type="button" class="nav-item" data-nav="results"><span aria-hidden="true">◔</span><span>Kết quả</span></button>
+        <button type="button" class="nav-item" data-nav="bank"><span aria-hidden="true">▤</span><span>Ngân hàng câu hỏi</span></button>
+      </nav>
+      <div class="sidebar-foot">
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Chuyển sang giao diện tối">
+          <span aria-hidden="true">☼</span><span>Giao diện</span><span class="toggle-track"><i></i></span>
+        </button>
+        <p>Học offline · Dữ liệu lưu trên thiết bị</p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="mobile-header">
+        <a class="brand" href="#home" data-nav="home"><span class="brand-mark" aria-hidden="true">S</span><strong>SAP-C02</strong></a>
+        <button type="button" id="mobile-theme-toggle" class="icon-button" aria-label="Chuyển giao diện sáng/tối">☼</button>
+      </header>
+      <div id="restore-banner" class="restore-banner" hidden>
+        <span>Bạn có một phiên học đang dở.</span>
+        <button type="button" id="restore-session">Tiếp tục</button>
+        <button type="button" id="discard-session" class="text-button">Bỏ qua</button>
+      </div>
+      <div id="loading" class="loading-state"><span class="spinner" aria-hidden="true"></span><p>Đang tải bộ câu hỏi…</p></div>
+      <div id="app" hidden></div>
+    </main>
+
+    <nav class="mobile-nav" aria-label="Điều hướng trên thiết bị di động">
+      <button type="button" class="nav-item active" data-nav="home"><span aria-hidden="true">⌂</span><small>Trang chủ</small></button>
+      <button type="button" class="nav-item" data-nav="practice"><span aria-hidden="true">⌁</span><small>Luyện tập</small></button>
+      <button type="button" class="nav-item" data-nav="exam"><span aria-hidden="true">▣</span><small>Thi thử</small></button>
+      <button type="button" class="nav-item" data-nav="results"><span aria-hidden="true">◔</span><small>Kết quả</small></button>
+      <button type="button" class="nav-item" data-nav="bank"><span aria-hidden="true">▤</span><small>Ngân hàng</small></button>
+    </nav>
+  </div>
+
+  <dialog id="submit-dialog" aria-labelledby="submit-title">
+    <div class="dialog-card">
+      <button type="button" class="dialog-close" id="close-dialog" aria-label="Đóng hộp thoại">×</button>
+      <div class="dialog-icon" aria-hidden="true">!</div>
+      <h2 id="submit-title">Nộp bài thi?</h2>
+      <p id="submit-summary"></p>
+      <div class="dialog-actions">
+        <button type="button" class="button secondary" id="cancel-submit">Xem lại</button>
+        <button type="button" class="button primary" id="confirm-submit">Nộp bài</button>
+      </div>
+    </div>
+  </dialog>
+  <div id="live-region" class="sr-only" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
