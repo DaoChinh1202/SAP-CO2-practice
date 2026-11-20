@@ -4,6 +4,7 @@
 
   const STORAGE_KEY = "sap-c02-offline-session";
   const THEME_KEY = "sap-c02-offline-theme";
+  const DATA_VERSION = "learning-aids-1";
   const app = document.getElementById("app");
   const loading = document.getElementById("loading");
   const liveRegion = document.getElementById("live-region");
@@ -44,11 +45,11 @@
 
   async function loadData() {
     try {
-      const catalogResponse = await fetch("data/catalog.json");
+      const catalogResponse = await fetch("data/catalog.json?v=" + DATA_VERSION);
       if (!catalogResponse.ok) throw new Error("Không thể tải catalog.json");
       state.catalog = await catalogResponse.json();
       const records = await Promise.all(state.catalog.map(async (item) => {
-        const response = await fetch("data/" + encodeURIComponent(item.id) + ".json");
+        const response = await fetch("data/" + encodeURIComponent(item.id) + ".json?v=" + DATA_VERSION);
         if (!response.ok) throw new Error("Không thể tải " + item.id + ".json");
         return response.json();
       }));
