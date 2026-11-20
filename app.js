@@ -186,13 +186,15 @@
     }).join("");
     const status = checked ? (isUnavailable(question) ? "unavailable" : isCorrect(question, selected) ? "right" : "wrong") : "";
     const feedback = checked ? renderFeedback(question, status) : "";
+    const learningAvailable = !exam && checked;
+    const learningTrigger = learningAvailable ? '<div class="learning-trigger-row"><button type="button" class="deep-learning-trigger" id="open-learning" aria-haspopup="dialog" aria-controls="learning-drawer">💡 <span>Gợi ý học sâu</span></button><span class="learning-trigger-note">Mở sau khi kiểm tra</span></div>' : "";
     const answeredCount = sessionQuestions.filter((item) => answersFor(item.id).length).length;
     const unanswered = sessionQuestions.length - answeredCount;
     const nextLabel = state.session.current === sessionQuestions.length - 1 ? "Câu đầu tiên" : "Câu tiếp theo";
     app.innerHTML = '<section class="page" aria-labelledby="quiz-title"><div class="quiz-top"><div><p class="eyebrow">' + (exam ? "Mô phỏng phòng thi" : "Luyện tập có hướng dẫn") + '</p><h1 id="quiz-title">' + escapeHtml(catalogTitle(state.session.test === "all" ? "Tất cả bộ đề" : state.session.test)) + '</h1><p>' + (exam ? unanswered + " câu chưa trả lời" : "Chọn đáp án rồi kiểm tra khi bạn sẵn sàng") + '</p></div>' + (exam ? '<button class="button primary" id="submit-exam-top" type="button">Nộp bài</button>' : '<button class="button secondary" id="exit-session" type="button">Thoát phiên</button>') + '</div>' +
-      '<div class="quiz-layout"><article class="card question-card"><div class="question-meta"><span class="question-number">CÂU ' + (state.session.current + 1) + ' / ' + sessionQuestions.length + '</span><span>' + (question.requiredAnswers > 1 ? "Chọn " + question.requiredAnswers + " đáp án" : "Chọn 1 đáp án") + '</span></div><p class="question-text">' + escapeHtml(question.question) + '</p><p class="required-hint">' + (exam ? "Đáp án sẽ chỉ được chấm khi bạn nộp bài." : "Bạn có thể đổi lựa chọn trước khi kiểm tra đáp án.") + '</p><div class="options" role="group" aria-label="Các đáp án">' + options + '</div>' + feedback +
+       '<div class="quiz-layout"><article class="card question-card"><div class="question-meta"><span class="question-number">CÂU ' + (state.session.current + 1) + ' / ' + sessionQuestions.length + '</span><span>' + (question.requiredAnswers > 1 ? "Chọn " + question.requiredAnswers + " đáp án" : "Chọn 1 đáp án") + '</span></div><p class="question-text">' + escapeHtml(question.question) + '</p><p class="required-hint">' + (exam ? "Đáp án sẽ chỉ được chấm khi bạn nộp bài." : "Bạn có thể đổi lựa chọn trước khi kiểm tra đáp án.") + '</p><div class="options" role="group" aria-label="Các đáp án">' + options + '</div>' + feedback + learningTrigger +
       '<div class="question-actions"><button type="button" class="flag-button ' + (state.session.flags[question.id] ? "flagged" : "") + '" id="flag-question" aria-pressed="' + Boolean(state.session.flags[question.id]) + '">' + (state.session.flags[question.id] ? "⚑ Đã đánh dấu" : "⚐ Đánh dấu xem lại") + '</button><div class="action-right">' + (!exam ? '<button class="button secondary" id="check-answer" type="button" ' + (selected.length !== Number(question.requiredAnswers) || checked ? "disabled" : "") + '>Kiểm tra đáp án</button>' : "") + '<button class="button primary" id="next-question" type="button">' + nextLabel + '</button></div></div></article>' +
-      '<aside class="card navigator-card"><h3>Câu hỏi <span>' + answeredCount + "/" + sessionQuestions.length + " đã chọn</span></h3>" + (exam ? '<p class="exam-status">' + unanswered + ' câu chưa trả lời · phím M để đánh dấu</p>' : "") + '<div class="nav-legend"><span><i class="legend-dot current"></i>Hiện tại</span><span><i class="legend-dot right"></i>Đúng</span><span><i class="legend-dot wrong"></i>Sai</span><span><i class="legend-dot"></i>Chưa kiểm tra</span></div><div class="navigator" aria-label="Điều hướng câu hỏi">' + renderNavigator(sessionQuestions) + '</div></aside></div></section>';
+       '<aside class="card navigator-card"><h3>Câu hỏi <span>' + answeredCount + "/" + sessionQuestions.length + " đã chọn</span></h3>" + (exam ? '<p class="exam-status">' + unanswered + ' câu chưa trả lời · phím M để đánh dấu</p>' : "") + '<div class="nav-legend"><span><i class="legend-dot current"></i>Hiện tại</span><span><i class="legend-dot right"></i>Đúng</span><span><i class="legend-dot wrong"></i>Sai</span><span><i class="legend-dot"></i>Chưa kiểm tra</span></div><div class="navigator" aria-label="Điều hướng câu hỏi">' + renderNavigator(sessionQuestions) + '</div></aside></div></section>' + (learningAvailable ? renderLearningDrawer(question) : "");
     bindQuizEvents(question, sessionQuestions);
   }
 
@@ -202,6 +204,37 @@
     const explanation = question.explanation || question.reviewNote || "Chưa có giải thích cho câu hỏi này.";
     if (status === "right") return '<div class="feedback success"><strong>Chính xác</strong><span>Đáp án đúng: ' + escapeHtml(correctText) + '</span><br><span>' + escapeHtml(explanation) + '</span></div>';
     return '<div class="feedback error"><strong>Chưa chính xác</strong><span>Đáp án đúng: ' + escapeHtml(correctText) + '</span><br><span>' + escapeHtml(explanation) + '</span></div>';
+  }
+
+  const aidText = (value, fallback) => {
+    if (Array.isArray(value)) return value.length ? value.map(escapeHtml).join("") : '<span class="learning-fallback">' + fallback + "</span>";
+    return value ? escapeHtml(value) : '<span class="learning-fallback">' + fallback + "</span>";
+  };
+  const aidList = (value, fallback) => {
+    if (!Array.isArray(value) || !value.length) return '<li class="learning-fallback">' + fallback + "</li>";
+    return value.map((item) => "<li>" + escapeHtml(item) + "</li>").join("");
+  };
+  const aidListBlock = (value, fallback) => '<ul class="learning-detail-list">' + aidList(value, fallback) + "</ul>";
+  const keywordMarkup = (items) => items.map((item) => {
+    if (typeof item === "string") return "<span>" + escapeHtml(item) + "</span>";
+    const term = item && item.term ? item.term : "";
+    const meaning = item && item.meaning ? item.meaning : "";
+    return "<span><b>" + escapeHtml(term || "Từ khóa") + "</b>" + (meaning ? "<small>" + escapeHtml(meaning) + "</small>" : "") + "</span>";
+  }).join("");
+  function renderLearningDrawer(question) {
+    const aid = question.learningAid || {};
+    const focus = aid.focusPoints || aid.focus || aid.keyPoints;
+    const keywords = Array.isArray(aid.keywords) ? aid.keywords : [];
+    const context = aid.context || aid.contextRequirements || {};
+    const translation = aid.translation || aid.vietnamese || {};
+    const real = aid.realWorld || aid.example || aid.scenario || {};
+    const options = (translation.options || []).map((item) => "<li>" + escapeHtml(typeof item === "string" ? item : (item.id || "") + ". " + (item.text || "")) + "</li>").join("");
+    return '<div class="learning-scrim" id="learning-scrim" hidden></div><aside class="learning-drawer" id="learning-drawer" role="dialog" aria-modal="true" aria-labelledby="learning-title" aria-hidden="true">' +
+      '<div class="learning-drawer-head"><div><p class="eyebrow">LEARNING LENS <span class="learning-checked">✓ ĐÃ KIỂM TRA</span></p><h2 id="learning-title">Tách lớp suy luận</h2></div><button type="button" class="learning-close" id="close-learning" aria-label="Đóng gợi ý học sâu">×</button></div>' +
+      '<div class="learning-tabs" role="tablist" aria-label="Nội dung gợi ý học sâu"><button type="button" class="learning-tab active" id="deep-learning-tab" role="tab" aria-selected="true" aria-controls="deep-learning-panel">Phân tích học sâu</button><button type="button" class="learning-tab" id="real-learning-tab" role="tab" aria-selected="false" aria-controls="real-learning-panel">Ví dụ thực tế</button></div>' +
+      '<div class="learning-scroll"><section class="learning-panel" id="deep-learning-panel" role="tabpanel" aria-labelledby="deep-learning-tab"><div class="learning-summary"><strong>' + aidText(aid.summary, "Chưa có tóm tắt học sâu cho câu hỏi này.") + '</strong><p>Đáp án và giải thích ở trên là kết quả kiểm tra của câu này; phần dưới mở rộng cách suy luận.</p></div><div class="learning-section"><h3><span>01</span> Điểm cần tập trung</h3><ul>' + aidList(focus, "Chưa có điểm tập trung được cung cấp.") + '</ul></div><div class="learning-keywords">' + (keywords.length ? keywordMarkup(keywords) : '<span class="learning-fallback">Chưa có từ khóa được cung cấp.</span>') + '</div><div class="learning-section"><h3><span>02</span> Bối cảnh, yêu cầu &amp; ràng buộc</h3><p><b>Bối cảnh:</b> ' + aidText(context.context || aid.context, "Chưa có bối cảnh được cung cấp.") + '</p><div class="learning-detail-field"><b>Yêu cầu:</b>' + aidListBlock(context.requirements || aid.requirements, "Chưa có yêu cầu được cung cấp.") + '</div><div class="learning-detail-field"><b>Ràng buộc:</b>' + aidListBlock(context.constraints || aid.constraints, "Chưa có ràng buộc được cung cấp.") + '</div></div><details class="learning-translation"><summary>↗ Xem bản dịch tiếng Việt của câu hỏi &amp; lựa chọn</summary><div><p><b>Câu hỏi:</b> ' + aidText(translation.stem || translation.question, "Chưa có bản dịch câu hỏi.") + '</p>' + (options ? "<p><b>Lựa chọn:</b></p><ul>" + options + "</ul>" : '<p class="learning-fallback">Chưa có bản dịch lựa chọn.</p>') + "</div></details></section>" +
+      '<section class="learning-panel" id="real-learning-panel" role="tabpanel" aria-labelledby="real-learning-tab" hidden><p class="eyebrow">ARCHITECTURE FIELD NOTE</p><h3 class="learning-real-title">' + aidText(real.title || real.scenario, "Ví dụ kiến trúc thực tế") + '</h3><div class="learning-real-copy"><p><b>Tình huống:</b> ' + aidText(real.scenario, "Chưa có tình huống thực tế được cung cấp.") + '</p><p><b>Thách thức:</b> ' + aidText(real.challenge, "Chưa có thách thức được cung cấp.") + '</p><p><b>Nguyên tắc &amp; trade-off:</b> ' + aidText(real.principle || real.tradeoffs, "Chưa có phân tích trade-off được cung cấp.") + '</p></div><div class="learning-takeaway"><b>Bài học:</b> ' + aidText(real.takeaway, "Chưa có takeaway được cung cấp.") + "</div></section></div>" +
+      '<div class="learning-drawer-foot"><span>Gợi ý chỉ mở sau khi kiểm tra</span><button type="button" class="button primary" id="close-learning-foot">Đóng</button></div></aside>';
   }
 
   function renderNavigator(questions) {
@@ -216,6 +249,40 @@
   }
 
   function bindQuizEvents(question, questions) {
+    let learningOpener = null;
+    const closeLearning = () => {
+      const drawer = $("#learning-drawer");
+      const scrim = $("#learning-scrim");
+      if (!drawer || !drawer.classList.contains("open")) return;
+      drawer.classList.remove("open");
+      drawer.setAttribute("aria-hidden", "true");
+      if (scrim) scrim.hidden = true;
+      document.body.classList.remove("learning-open");
+      if (learningOpener) learningOpener.focus();
+    };
+    const openLearning = () => {
+      const drawer = $("#learning-drawer");
+      const scrim = $("#learning-scrim");
+      learningOpener = $("#open-learning");
+      if (!drawer || !scrim || !learningOpener) return;
+      drawer.classList.add("open");
+      drawer.setAttribute("aria-hidden", "false");
+      scrim.hidden = false;
+      document.body.classList.add("learning-open");
+      $("#close-learning")?.focus();
+    };
+    $("#open-learning")?.addEventListener("click", openLearning);
+    $("#close-learning")?.addEventListener("click", closeLearning);
+    $("#close-learning-foot")?.addEventListener("click", closeLearning);
+    $("#learning-scrim")?.addEventListener("click", closeLearning);
+    $$(".learning-tab").forEach((tab) => tab.addEventListener("click", () => {
+      $$(".learning-tab").forEach((item) => {
+        const active = item === tab;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-selected", String(active));
+      });
+      $$(".learning-panel").forEach((panel) => { panel.hidden = panel.id !== tab.getAttribute("aria-controls"); });
+    }));
     $$(".options input").forEach((input) => input.addEventListener("change", () => {
       const values = $$(".options input:checked").map((item) => item.value);
       state.session.answers[question.id] = values;
@@ -301,6 +368,30 @@
   $("#close-dialog").addEventListener("click", () => dialog.close());
   $("#cancel-submit").addEventListener("click", () => dialog.close());
   $("#confirm-submit").addEventListener("click", submitExam);
+  document.addEventListener("keydown", (event) => {
+    const drawer = $("#learning-drawer.open");
+    if (!drawer) return;
+    if (event.key === "Escape") {
+      $("#close-learning")?.click();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const focusable = $$("button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])", drawer)
+      .filter((element) => element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    } else if (!drawer.contains(document.activeElement)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+    }
+  });
   document.addEventListener("keydown", (event) => {
     if (dialog.open || !state.session || !["practice", "exam"].includes(state.view)) return;
     const target = event.target;

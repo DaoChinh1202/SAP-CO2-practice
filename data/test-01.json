@@ -27,7 +27,65 @@
       "A"
     ],
     "explanation": "Chọn A vì ALB và Auto Scaling Group xử lý co giãn mà không cần viết lại ứng dụng, còn Aurora PostgreSQL với Babelfish giúp tương thích SQL Server và giảm chi phí giấy phép. B dùng sai DMS để tạo ảnh máy và DynamoDB không tương thích trực tiếp; C vẫn chịu chi phí vận hành EKS và giấy phép SQL Server; D đòi hỏi tái cấu trúc lớn.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Đánh giá replatform ứng dụng .NET và cơ sở dữ liệu để co giãn mà không viết lại.",
+      "translation": {
+        "stem": "Một công ty bán lẻ trực tuyến di chuyển ứng dụng .NET cũ từ tại chỗ lên AWS. Ứng dụng có tầng web và ứng dụng cân bằng tải cùng cơ sở dữ liệu Microsoft SQL Server; công ty muốn dùng dịch vụ được quản lý, không viết lại, giải quyết mở rộng và giảm chi phí giấy phép. Giải pháp nào hiệu quả chi phí nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Đặt EC2 trong Auto Scaling Group sau ALB cho tầng web và ứng dụng; dùng Aurora PostgreSQL bật Babelfish để replatform SQL Server."
+          },
+          {
+            "id": "B",
+            "text": "Dùng DMS tạo ảnh máy, chạy EC2 từ ảnh nhập, đặt sau NLB và dùng DynamoDB làm database."
+          },
+          {
+            "id": "C",
+            "text": "Đóng gói web/ứng dụng thành container, tạo EKS, đặt ASG sau NLB và dùng RDS for SQL Server."
+          },
+          {
+            "id": "D",
+            "text": "Tách chức năng thành Lambda, dùng API Gateway, chuyển dữ liệu sang S3 và truy vấn bằng Athena."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Babelfish",
+          "meaning": "Lớp tương thích T-SQL trên Aurora PostgreSQL"
+        },
+        {
+          "term": "replatform",
+          "meaning": "Di chuyển nền tảng với ít thay đổi mã"
+        },
+        {
+          "term": "Auto Scaling",
+          "meaning": "Tự điều chỉnh số tài nguyên"
+        }
+      ],
+      "context": "Ứng dụng ba tầng .NET/SQL Server cần di chuyển và đối phó tải tăng.",
+      "requirements": [
+        "Không viết lại",
+        "Dùng dịch vụ quản lý",
+        "Tự động co giãn và giảm license"
+      ],
+      "constraints": [
+        "Mã cũ phụ thuộc SQL Server",
+        "Tránh vận hành cụm container hoặc pipeline phân tích không cần thiết"
+      ],
+      "focusPoints": [
+        "Phân biệt replatform với refactor.",
+        "Kiểm tra tương thích database và tác động license."
+      ],
+      "realWorld": {
+        "scenario": "Nhà bán lẻ chuyển ứng dụng .NET cũ lên cloud.",
+        "challenge": "Cần tăng công suất theo mùa mà không đại tu mã.",
+        "principle": "Chọn mức hiện đại hóa nhỏ nhất nhưng tận dụng dịch vụ managed.",
+        "takeaway": "Tương thích và TCO quan trọng hơn kiến trúc mới nhất."
+      }
+    }
   },
   {
     "id": "test-01-02",
@@ -57,7 +115,66 @@
       "B"
     ],
     "explanation": "Chọn B vì Elastic Disaster Recovery liên tục sao chép máy EC2, read replica sao chép dữ liệu với RPO ngắn, còn môi trường tối thiểu và Route 53 failover đáp ứng RTO 10 phút với chi phí thấp. A và C dựa vào sao lưu 30 giây, không khả thi; D chạy đầy đủ công suất ở vùng DR nên tốn kém không cần thiết.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Đánh giá mô hình DR theo RPO/RTO và chi phí.",
+      "translation": {
+        "stem": "Công ty cần DR cho website thương mại điện tử chạy trên EC2 t3.large và RDS MySQL. EC2 nằm trong ASG đa AZ; khi thảm họa xảy ra phải chuyển sang môi trường phụ với RPO 30 giây và RTO 10 phút. Giải pháp nào hiệu quả chi phí nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dùng IaC dựng DR, read replica liên Region và cố sao lưu EC2/RDS mỗi 30 giây; khôi phục bản sao mới nhất và dùng Route 53 geolocation."
+          },
+          {
+            "id": "B",
+            "text": "Dùng IaC, read replica và Elastic Disaster Recovery sao chép liên tục EC2; chạy DR công suất tối thiểu, Route 53 failover rồi tăng desired capacity."
+          },
+          {
+            "id": "C",
+            "text": "Dùng AWS Backup sao lưu chéo Region mỗi 30 giây, dựng IaC, khôi phục thủ công và dùng simple routing."
+          },
+          {
+            "id": "D",
+            "text": "Tạo Aurora global database, dùng EDR, chạy ASG DR toàn công suất và Route 53 failover."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "RPO",
+          "meaning": "Lượng dữ liệu tối đa có thể mất"
+        },
+        {
+          "term": "RTO",
+          "meaning": "Thời gian tối đa để khôi phục"
+        },
+        {
+          "term": "pilot light",
+          "meaning": "Môi trường phụ tối thiểu luôn sẵn sàng"
+        }
+      ],
+      "context": "Website có EC2/RDS ở Region chính và cần DR rất nhanh.",
+      "requirements": [
+        "RPO 30 giây",
+        "RTO 10 phút",
+        "Failover tự động",
+        "Chi phí tối thiểu"
+      ],
+      "constraints": [
+        "Backup 30 giây không thực tế",
+        "Không chạy DR toàn công suất khi chưa có thảm họa"
+      ],
+      "focusPoints": [
+        "Đối chiếu replication liên tục với backup định kỳ.",
+        "Phân biệt failover routing với geolocation."
+      ],
+      "realWorld": {
+        "scenario": "Website bán lẻ cần tiếp tục bán hàng sau mất Region.",
+        "challenge": "DR phải khởi động nhanh nhưng không trả tiền cho capacity đầy đủ.",
+        "principle": "RPO/RTO quyết định giữa backup, pilot light và active-active.",
+        "takeaway": "Sao chép liên tục dữ liệu/máy, giữ DR ở công suất tối thiểu nếu có thể."
+      }
+    }
   },
   {
     "id": "test-01-03",
@@ -87,7 +204,65 @@
       "B"
     ],
     "explanation": "Chọn B vì FSx for Windows File Server cho phép thay đổi loại lưu trữ và throughput tại chỗ trong cửa sổ bảo trì, không cần di chuyển dữ liệu hay đổi DNS. Các phương án còn lại phải sao lưu/khôi phục hoặc đồng bộ sang hệ thống mới, tạo thêm công việc quản trị.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Nhận diện thay đổi tại chỗ của FSx để tăng hiệu năng với ít thao tác.",
+      "translation": {
+        "stem": "WorkSpaces dùng hồ sơ người dùng trên FSx for Windows File Server liên kết AD. Hiệu năng giảm vì file system dùng HDD và throughput 16 MBps; cần cải thiện trong cửa sổ bảo trì với ít công sức nhất. Nên làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Backup điểm-thời-gian, restore sang FSx mới dùng SSD/32 MBps, đổi DNS alias rồi xóa cũ."
+          },
+          {
+            "id": "B",
+            "text": "Ngắt người dùng, cập nhật throughput lên 32 MBps và đổi storage type sang SSD trong FSx console, rồi kết nối lại."
+          },
+          {
+            "id": "C",
+            "text": "Dùng DataSync sao chép sang FSx mới dùng SSD/32 MBps, đổi DNS alias rồi xóa cũ."
+          },
+          {
+            "id": "D",
+            "text": "Bật shadow copies, tạo bản sao, restore sang FSx mới dùng SSD/32 MBps rồi đổi DNS."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "FSx for Windows",
+          "meaning": "File service Windows được quản lý"
+        },
+        {
+          "term": "throughput",
+          "meaning": "Thông lượng cấp cho file system"
+        },
+        {
+          "term": "SSD",
+          "meaning": "Lưu trữ solid-state nhanh"
+        }
+      ],
+      "context": "File system Windows phục vụ hồ sơ WorkSpaces đang nghẽn.",
+      "requirements": [
+        "Tăng throughput",
+        "Chuyển SSD",
+        "Giữ dữ liệu và DNS"
+      ],
+      "constraints": [
+        "Cửa sổ bảo trì hữu hạn",
+        "Di chuyển dữ liệu tạo thêm công việc"
+      ],
+      "focusPoints": [
+        "Ưu tiên thay đổi được hỗ trợ tại chỗ.",
+        "Không backup/restore nếu không cần di chuyển."
+      ],
+      "realWorld": {
+        "scenario": "Doanh nghiệp nâng cấp hệ thống file hồ sơ.",
+        "challenge": "Cần nâng hiệu năng mà không lập kế hoạch đồng bộ mới.",
+        "principle": "Dịch vụ managed thường cho phép chỉnh thuộc tính tại chỗ.",
+        "takeaway": "Kiểm tra resize tại chỗ trước khi thiết kế migration."
+      }
+    }
   },
   {
     "id": "test-01-04",
@@ -117,7 +292,65 @@
       "A"
     ],
     "explanation": "Chọn A vì EC2 có tải ổn định nên dùng EC2 Instance Savings Plan, Lambda chỉ cam kết mức tiêu thụ tối thiểu bằng Compute Savings Plan, và MemoryDB có reserved nodes. Reserved concurrency của Lambda không phải cơ chế giảm giá; Compute Savings Plan cũng không áp dụng cho MemoryDB.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Ghép chương trình giảm giá với tính ổn định của từng tải.",
+      "translation": {
+        "stem": "Ứng dụng chạy trên EC2 và Lambda; EC2 có tải ổn định, Lambda biến động khó đoán, cache dùng MemoryDB for Redis. Giải pháp nào giảm chi phí tháng tổng thể?",
+        "options": [
+          {
+            "id": "A",
+            "text": "EC2 Instance Savings Plan cho EC2, Compute Savings Plan cho mức Lambda tối thiểu và reserved nodes cho MemoryDB."
+          },
+          {
+            "id": "B",
+            "text": "Compute Savings Plan cho EC2, Lambda reserved concurrency cho mức dùng dự kiến và reserved nodes cho MemoryDB."
+          },
+          {
+            "id": "C",
+            "text": "Compute Savings Plan bao phủ EC2, Lambda và MemoryDB."
+          },
+          {
+            "id": "D",
+            "text": "Compute Savings Plan cho EC2 và MemoryDB, Lambda reserved concurrency cho mức dùng dự kiến."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Savings Plan",
+          "meaning": "Cam kết chi tiêu để được giảm giá compute"
+        },
+        {
+          "term": "reserved node",
+          "meaning": "Cam kết nút dịch vụ dữ liệu"
+        },
+        {
+          "term": "reserved concurrency",
+          "meaning": "Giới hạn đồng thời Lambda, không phải discount"
+        }
+      ],
+      "context": "Ba thành phần có hồ sơ sử dụng và cơ chế tính phí khác nhau.",
+      "requirements": [
+        "Cam kết tải ổn định",
+        "Không cam kết tải Lambda biến động",
+        "Dùng discount đúng dịch vụ"
+      ],
+      "constraints": [
+        "Không phải dịch vụ nào được Compute Savings Plan bao phủ",
+        "Reserved concurrency không giảm đơn giá"
+      ],
+      "focusPoints": [
+        "Ghép loại cam kết với dịch vụ được hỗ trợ.",
+        "Chỉ cam kết baseline dự báo được."
+      ],
+      "realWorld": {
+        "scenario": "Đội tài chính tối ưu chi phí nền tảng serverless lai.",
+        "challenge": "EC2 ổn định nhưng Lambda và cache có cách định giá khác nhau.",
+        "principle": "Tối ưu chi phí cần phân loại theo tính ổn định và phạm vi chương trình.",
+        "takeaway": "Cam kết đúng baseline, không nhầm concurrency với discount."
+      }
+    }
   },
   {
     "id": "test-01-05",
@@ -147,7 +380,66 @@
       "B"
     ],
     "explanation": "Chọn B vì weighted target groups giới hạn lưu lượng vào nhóm phiên bản mới ở 10%, còn stickiness giữ một khách hàng trên cùng nhóm trong thời gian thử nghiệm. Weighted DNS có thể làm khách hàng đổi đích theo bộ nhớ đệm DNS, rolling update không giữ được hai phiên bản, và LOR không tạo phân bổ phiên bản.",
-    "reviewNote": "Option B có lỗi trích xuất “ALDeploy” (ý là ALB), nhưng ý định weighted target groups vẫn rõ."
+    "reviewNote": "Option B có lỗi trích xuất “ALDeploy” (ý là ALB), nhưng ý định weighted target groups vẫn rõ.",
+    "learningAid": {
+      "summary": "Đánh giá blue/green, weighted routing và session stickiness.",
+      "translation": {
+        "stem": "EC2 trong ASG phục vụ qua ALB; chỉ 10% khách hàng nhận logic mới trong thời gian thử nghiệm và mỗi khách phải dùng cùng phiên bản. Triển khai thế nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tạo ALB và ASG mới, dùng Route 53 weighted routing trỏ tới cả hai ALB."
+          },
+          {
+            "id": "B",
+            "text": "Tạo target group thứ hai trên ALB, triển khai logic mới, dùng weighted target groups ở listener và bật stickiness."
+          },
+          {
+            "id": "C",
+            "text": "Tạo launch configuration mới, dùng rolling update MaxBatchSize 10 rồi thay configuration."
+          },
+          {
+            "id": "D",
+            "text": "Tạo ASG thứ hai, đổi thuật toán least outstanding requests và bật session stickiness."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "weighted target group",
+          "meaning": "Phân bổ tỷ lệ request giữa target groups"
+        },
+        {
+          "term": "stickiness",
+          "meaning": "Giữ client gắn với cùng đích"
+        },
+        {
+          "term": "blue/green",
+          "meaning": "Hai môi trường chuyển đổi độc lập"
+        }
+      ],
+      "context": "Ứng dụng cần cho một tỷ lệ nhỏ khách thử phiên bản mới.",
+      "requirements": [
+        "Phân bổ 10%",
+        "Giữ phiên bản theo session",
+        "Chuyển đổi trong cùng ALB"
+      ],
+      "constraints": [
+        "DNS có cache",
+        "Rolling update trộn phiên bản",
+        "LOR không tạo phân bổ phiên bản"
+      ],
+      "focusPoints": [
+        "Tìm cơ chế phân bổ ở tầng request.",
+        "Yêu cầu cùng phiên bản cần stickiness."
+      ],
+      "realWorld": {
+        "scenario": "Đội thử business logic mới với 10% người dùng.",
+        "challenge": "Người dùng không được đổi phiên bản khi refresh.",
+        "principle": "Canary ở ALB kiểm soát tốt hơn DNS weighted.",
+        "takeaway": "Phân bổ request và duy trì session phải đi cùng nhau."
+      }
+    }
   },
   {
     "id": "test-01-06",
@@ -182,7 +474,69 @@
       "B"
     ],
     "explanation": "A giới hạn đường dẫn theo username để mỗi nhà khoa học chỉ đọc/ghi thư mục của mình; B dùng CloudTrail S3 data events và Athena để truy vết người nào truy cập đối tượng. Server access logging kém thuận tiện cho nhận dạng và báo cáo, còn bucket policy rộng không ngăn truy cập chéo; ghi CloudTrail vào CloudWatch rồi dùng connector cũng không phải lựa chọn sẵn sàng và đơn giản nhất.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Kết hợp least-privilege theo prefix S3 với audit object-level.",
+      "translation": {
+        "stem": "Một trung tâm nghiên cứu lưu tài liệu của 100 nhà khoa học trong S3; mỗi người có thư mục riêng và cùng IAM group. Cần ngăn truy cập chéo và báo cáo ai truy cập tài liệu, ít vận hành. Chọn hai.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Identity policy đọc/ghi với điều kiện đường dẫn bắt đầu bằng ${aws:username}, gắn vào group."
+          },
+          {
+            "id": "B",
+            "text": "CloudTrail ghi mọi object event vào bucket khác và dùng Athena truy vấn log."
+          },
+          {
+            "id": "C",
+            "text": "Bật S3 server access logging vào bucket khác rồi dùng Athena."
+          },
+          {
+            "id": "D",
+            "text": "Bucket policy cấp đọc/ghi cho người dùng trong group."
+          },
+          {
+            "id": "E",
+            "text": "CloudTrail ghi event vào CloudWatch rồi dùng Athena CloudWatch connector."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "object-level event",
+          "meaning": "Sự kiện thao tác trên từng object S3"
+        },
+        {
+          "term": "aws:username",
+          "meaning": "Điều kiện chứa tên IAM user"
+        },
+        {
+          "term": "least privilege",
+          "meaning": "Chỉ cấp quyền tối thiểu"
+        }
+      ],
+      "context": "Nhiều người dùng chung group nhưng tài liệu phải tách theo thư mục.",
+      "requirements": [
+        "Mỗi người chỉ vào prefix của mình",
+        "Ghi danh tính và thao tác",
+        "Báo cáo dễ vận hành"
+      ],
+      "constraints": [
+        "Bucket policy rộng không phân tách user",
+        "Server access log kém thuận tiện hơn CloudTrail data events"
+      ],
+      "focusPoints": [
+        "Kết hợp prefix policy với data events.",
+        "Ưu tiên audit có thể truy vấn."
+      ],
+      "realWorld": {
+        "scenario": "Kho tài liệu nghiên cứu cần tuân thủ và truy vết.",
+        "challenge": "Cùng group IAM vẫn phải có quyền theo thư mục.",
+        "principle": "Phân quyền và quan sát là hai lớp độc lập.",
+        "takeaway": "Giới hạn prefix bằng identity policy và dùng CloudTrail/Athena."
+      }
+    }
   },
   {
     "id": "test-01-07",
@@ -212,7 +566,66 @@
       "C"
     ],
     "explanation": "Chọn C vì AWS Backup tạo bản sao liên vùng cho Aurora và DynamoDB, còn API Gateway ở cả hai vùng cùng Route 53 failover đủ cho RPO 2 giờ và RTO 4 giờ với chi phí thấp. Global database/global tables cho RPO thấp hơn nhưng đắt hơn; tự dựng DMS, EventBridge và Lambda làm tăng vận hành không cần thiết.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Chọn DR database dựa trên RPO/RTO và chi phí.",
+      "translation": {
+        "stem": "Ứng dụng ECS/API Gateway dùng Aurora và DynamoDB; CloudFormation và CodePipeline đã có. Cần DR với RPO 2 giờ, RTO 4 giờ, hiệu quả chi phí nhất. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Aurora global database, DynamoDB global tables, API Gateway Regional hai Region và CloudFront origin failover."
+          },
+          {
+            "id": "B",
+            "text": "Tự dùng DMS/EventBridge/Lambda và Streams để sao chép database, API Gateway Regional và Route 53 failover."
+          },
+          {
+            "id": "C",
+            "text": "AWS Backup sao lưu Aurora/DynamoDB sang Region phụ; API Gateway Regional hai Region và Route 53 failover."
+          },
+          {
+            "id": "D",
+            "text": "Aurora global database, DynamoDB global tables, API Gateway Regional và Route 53 failover."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "AWS Backup",
+          "meaning": "Dịch vụ lập lịch và sao chép backup"
+        },
+        {
+          "term": "global table",
+          "meaning": "Bảng DynamoDB đa Region"
+        },
+        {
+          "term": "failover routing",
+          "meaning": "Định tuyến sang đích dự phòng"
+        }
+      ],
+      "context": "Nền tảng container có nhiều datastore và pipeline IaC.",
+      "requirements": [
+        "RPO 2 giờ",
+        "RTO 4 giờ",
+        "Khôi phục liên Region",
+        "Chi phí thấp"
+      ],
+      "constraints": [
+        "Không cần active-active realtime",
+        "Tự xây replication làm tăng vận hành"
+      ],
+      "focusPoints": [
+        "So sánh backup định kỳ với global replication.",
+        "Chuẩn bị endpoint DR và DNS failover."
+      ],
+      "realWorld": {
+        "scenario": "SaaS cần phục hồi API và dữ liệu sau lỗi Region.",
+        "challenge": "Mục tiêu vừa phải nên active-active đắt tiền là dư thừa.",
+        "principle": "RPO/RTO cho phép chọn backup chéo Region.",
+        "takeaway": "Dùng AWS Backup và endpoint chuẩn bị sẵn khi không cần failover tức thời."
+      }
+    }
   },
   {
     "id": "test-01-08",
@@ -242,7 +655,64 @@
       "C"
     ],
     "explanation": "Chọn C vì Site-to-Site VPN cho phép người dùng truy cập trực tiếp EC2 qua mạng nội bộ, đồng thời EC2 tham gia Active Directory hiện hữu mà không cần dịch vụ quản lý bổ sung. Managed AD, bastion hoặc RD Gateway ở các phương án khác tăng chi phí và thành phần vận hành.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Thiết kế RDP tập trung qua VPN và Active Directory với chi phí thấp.",
+      "translation": {
+        "stem": "Người dùng cần Remote Desktop tới EC2 Windows trong VPC, quản lý qua AD tại chỗ. VPC kết nối Internet và công ty có phần cứng cho Site-to-Site VPN. Giải pháp tiết kiệm nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Managed AD có trust với AD tại chỗ, bastion EC2 join domain và RDP qua bastion."
+          },
+          {
+            "id": "B",
+            "text": "IAM Identity Center với AD Connector, permission set cho Systems Manager và Fleet Manager RDP."
+          },
+          {
+            "id": "C",
+            "text": "Thiết lập VPN, join EC2 vào AD tại chỗ qua VPN, bật RDP qua VPN và kết nối từ mạng công ty."
+          },
+          {
+            "id": "D",
+            "text": "Managed AD có trust, Remote Desktop Gateway bằng Quick Start và RDP qua gateway."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Site-to-Site VPN",
+          "meaning": "Kết nối mã hóa mạng tại chỗ với VPC"
+        },
+        {
+          "term": "domain trust",
+          "meaning": "Quan hệ tin cậy giữa hai AD"
+        },
+        {
+          "term": "bastion",
+          "meaning": "Máy trung gian truy cập máy nội bộ"
+        }
+      ],
+      "context": "EC2 Windows cần được người dùng AD hiện hữu truy cập.",
+      "requirements": [
+        "Tận dụng VPN và AD",
+        "RDP qua mạng riêng",
+        "Ít thành phần mới"
+      ],
+      "constraints": [
+        "Bastion, Managed AD, RD Gateway tăng chi phí/vận hành"
+      ],
+      "focusPoints": [
+        "Tận dụng kết nối riêng đã có.",
+        "Phân biệt quản lý danh tính với đường truyền."
+      ],
+      "realWorld": {
+        "scenario": "Nhân viên nội bộ cần quản trị Windows trên AWS.",
+        "challenge": "Công ty muốn tránh thêm dịch vụ trung gian khi đã có VPN/AD.",
+        "principle": "VPN và domain join trực tiếp đủ nếu user model đã được kiểm soát.",
+        "takeaway": "Dùng VPN làm đường truy cập và AD hiện hữu làm xác thực."
+      }
+    }
   },
   {
     "id": "test-01-09",
@@ -272,7 +742,65 @@
       "C"
     ],
     "explanation": "Chọn C vì ALB mã hóa kết nối client–ALB bằng ACM và kết nối ALB–instance lại dùng chứng thư thứ ba trên port 443, tạo mã hóa đầu-cuối. A không thể xuất chứng thư ACM để cài lên instance; B không dùng target group làm origin CloudFront, còn D dùng NLB không cần thiết cho bài toán web này.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Kiểm tra mã hóa hai chặng từ client qua load balancer đến server.",
+      "translation": {
+        "stem": "Website cần cân bằng tải EC2 và mã hóa đầu-cuối khi truyền giữa client và web server. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "ALB dùng ACM, xuất chứng thư cài lên EC2 và chuyển tiếp 443."
+          },
+          {
+            "id": "B",
+            "text": "CloudFront dùng ACM và đặt target group làm origin."
+          },
+          {
+            "id": "C",
+            "text": "ALB dùng ACM ở biên và chứng thư bên thứ ba trên EC2, chuyển tiếp 443."
+          },
+          {
+            "id": "D",
+            "text": "NLB dùng chứng thư bên thứ ba trên NLB và EC2, chuyển tiếp 443."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "end-to-end encryption",
+          "meaning": "Mã hóa cả client–LB và LB–server"
+        },
+        {
+          "term": "ACM",
+          "meaning": "Dịch vụ quản lý chứng thư AWS"
+        },
+        {
+          "term": "TLS termination",
+          "meaning": "Kết thúc TLS tại điểm trung gian"
+        }
+      ],
+      "context": "Client gọi website qua load balancer và backend cũng phải dùng TLS.",
+      "requirements": [
+        "Chứng thư hợp lệ ở ALB",
+        "Backend port 443",
+        "Không xuất private key ACM"
+      ],
+      "constraints": [
+        "ACM không cho xuất private key",
+        "CloudFront không nhận target group trực tiếp"
+      ],
+      "focusPoints": [
+        "Kiểm tra từng chặng TLS.",
+        "Nhớ giới hạn xuất chứng thư ACM."
+      ],
+      "realWorld": {
+        "scenario": "Ứng dụng web xử lý dữ liệu nhạy cảm qua ALB.",
+        "challenge": "Giải mã ở LB không được biến đoạn tới EC2 thành plaintext.",
+        "principle": "TLS termination phải kèm TLS re-encryption tới target.",
+        "takeaway": "Dùng ACM ở biên và chứng thư cài được ở backend."
+      }
+    }
   },
   {
     "id": "test-01-10",
@@ -302,7 +830,66 @@
       "A"
     ],
     "explanation": "Chọn A vì Transfer Family với VPC-hosted internet-facing endpoint cho phép gắn Elastic IP tĩnh cho từng subnet, còn EFS đa AZ thay thế trực tiếp NFS với dịch vụ được quản lý. Public endpoint thông thường không cung cấp bộ EIP do công ty kiểm soát; EC2 tự quản lý SFTP hoặc FSx for Lustre làm tăng vận hành và không phù hợp NFS.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Chọn Transfer Family và EFS để thay SFTP/NFS với HA và IP tĩnh.",
+      "translation": {
+        "stem": "SFTP Linux tại chỗ lưu file cho ứng dụng downstream qua NFS. Khi lên AWS cần HA, IP công khai tĩnh cho vendor allowlist, có Direct Connect và ít vận hành. Nên làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Transfer Family VPC internet-facing endpoint, Elastic IP mỗi subnet, EFS đa AZ và đổi downstream sang EFS."
+          },
+          {
+            "id": "B",
+            "text": "Transfer Family public endpoint, EFS đa AZ và đổi downstream sang EFS."
+          },
+          {
+            "id": "C",
+            "text": "Application Migration Service đưa VM lên EC2, gán Elastic IP, mount EFS và cấu hình SFTP."
+          },
+          {
+            "id": "D",
+            "text": "Di chuyển VM thành Transfer Family, dùng FSx for Lustre đa AZ làm lưu trữ NFS."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Transfer Family",
+          "meaning": "SFTP được quản lý"
+        },
+        {
+          "term": "Elastic IP",
+          "meaning": "IPv4 công khai cố định"
+        },
+        {
+          "term": "EFS",
+          "meaning": "File system NFS đa AZ"
+        }
+      ],
+      "context": "Vendor gửi SFTP; ứng dụng nội bộ cần NFS; hệ thống phải HA.",
+      "requirements": [
+        "IP tĩnh",
+        "SFTP managed",
+        "Lưu trữ đa AZ",
+        "Không vận hành server"
+      ],
+      "constraints": [
+        "Public endpoint không cung cấp bộ EIP tùy chỉnh",
+        "Lustre không phải file share NFS phù hợp"
+      ],
+      "focusPoints": [
+        "Tách giao thức truy cập khỏi storage.",
+        "Kiểm tra allowlist IP cần endpoint loại nào."
+      ],
+      "realWorld": {
+        "scenario": "Doanh nghiệp thay SFTP VM đơn lẻ bằng AWS managed service.",
+        "challenge": "Vendor không thể đổi allowlist và ứng dụng không thể bỏ NFS.",
+        "principle": "VPC endpoint với EIP và EFS đáp ứng cả ngoài lẫn trong.",
+        "takeaway": "Chọn Transfer Family cho SFTP và EFS cho NFS đa AZ."
+      }
+    }
   },
   {
     "id": "test-01-11",
@@ -332,7 +919,66 @@
       "B"
     ],
     "explanation": "Chọn B vì Firehose lưu luồng đều đặn vào S3 và AWS Batch dùng Spot cho công việc tính toán không quan trọng, có thể bị gián đoạn và chạy lại ở lượt sau. On-Demand mỗi đêm đắt hơn; giữ Reserved Instances hoặc dùng Redshift/Lambda không phù hợp với xử lý batch bốn giờ.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Tối ưu batch không quan trọng bằng S3, Firehose và Spot.",
+      "translation": {
+        "stem": "Dữ liệu thị trường streaming có tốc độ đều; job thống kê ban đêm chạy bốn giờ, không quan trọng và có thể xử lý lại lần sau. Reserved Instances sắp hết hạn. Thiết kế nào rẻ nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dùng Kinesis Data Firehose ghi vào S3, mỗi đêm chạy EC2 On-Demand rồi kết thúc."
+          },
+          {
+            "id": "B",
+            "text": "Dùng Firehose ghi vào S3 và AWS Batch với Spot Instances cho xử lý ban đêm, giới hạn giá Spot ở 50% On-Demand."
+          },
+          {
+            "id": "C",
+            "text": "Dùng EC2 Reserved Instances ba năm cho ingestion và AWS Batch Spot cho batch."
+          },
+          {
+            "id": "D",
+            "text": "Dùng Firehose ghi vào Redshift và Lambda truy vấn Redshift mỗi đêm."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Firehose",
+          "meaning": "Dịch vụ giao streaming data tới đích"
+        },
+        {
+          "term": "AWS Batch",
+          "meaning": "Điều phối job batch"
+        },
+        {
+          "term": "Spot Instance",
+          "meaning": "EC2 giá thấp, có thể bị thu hồi"
+        }
+      ],
+      "context": "Luồng dữ liệu cần lưu liên tục, còn phép tính là batch có thể gián đoạn.",
+      "requirements": [
+        "Lưu bền vững",
+        "Xử lý ban đêm",
+        "Chịu retry",
+        "Giảm compute"
+      ],
+      "constraints": [
+        "Không cần máy ingestion riêng",
+        "Không dùng Spot cho dữ liệu liên tục"
+      ],
+      "focusPoints": [
+        "Tách ingestion khỏi compute tạm thời.",
+        "Dùng Spot cho workload retry được."
+      ],
+      "realWorld": {
+        "scenario": "Trung tâm nghiên cứu tính thống kê từ streaming data mỗi đêm.",
+        "challenge": "Job không quan trọng nhưng On-Demand bốn giờ tốn kém.",
+        "principle": "Object storage và compute Spot theo lịch tối ưu workload gián đoạn.",
+        "takeaway": "Không mua cam kết cho batch không ổn định; trả theo thời gian chạy."
+      }
+    }
   },
   {
     "id": "test-01-12",
@@ -362,7 +1008,66 @@
       "B"
     ],
     "explanation": "Chọn B vì Transfer Family VPC-hosted internet-facing endpoint có thể nhận Elastic IP cũ và gắn security group, trong khi dữ liệu chuyển sang S3 mà khách hàng vẫn dùng cùng địa chỉ SFTP. Public endpoint không cho cách kiểm soát EIP/security group như yêu cầu; Fargate với NLB hoặc EBS multi-attach phức tạp và khó bảo đảm tính nhất quán.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Di chuyển SFTP sang Transfer Family mà vẫn giữ Elastic IP và workflow.",
+      "translation": {
+        "stem": "SFTP internet-facing chạy trên một EC2 có Elastic IP, SSH và security group mở cho khách hàng. Cần HA, ít quản trị, ít gián đoạn và không đổi cách khách kết nối. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Đổi sang S3, tạo Transfer Family public endpoint, gán Elastic IP cũ, trỏ tới S3 và đồng bộ file."
+          },
+          {
+            "id": "B",
+            "text": "Tạo Transfer Family VPC-hosted internet-facing endpoint, gán Elastic IP cũ, gắn security group khách hàng, trỏ tới S3 và đồng bộ file."
+          },
+          {
+            "id": "C",
+            "text": "Chạy SFTP trên Fargate với EFS/NLB, gán Elastic IP cho NLB rồi đồng bộ file."
+          },
+          {
+            "id": "D",
+            "text": "Dùng EBS multi-attach với ASG EC2/NLB và đồng bộ file vào volume."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "VPC-hosted endpoint",
+          "meaning": "Transfer Family endpoint trong VPC"
+        },
+        {
+          "term": "SFTP",
+          "meaning": "Truyền file qua SSH"
+        },
+        {
+          "term": "multi-attach EBS",
+          "meaning": "Volume gắn nhiều EC2 trong giới hạn hỗ trợ"
+        }
+      ],
+      "context": "SFTP endpoint có IP cố định và khách hàng không thể đổi cấu hình.",
+      "requirements": [
+        "Giữ IP",
+        "Tăng HA",
+        "Storage managed",
+        "Không tự vận hành SFTP"
+      ],
+      "constraints": [
+        "Public endpoint không kiểm soát EIP/SG như cần",
+        "Fargate/EBS phức tạp"
+      ],
+      "focusPoints": [
+        "Xác định thành phần phải giữ nguyên với client.",
+        "Ưu tiên Transfer Family hơn tự xây cluster."
+      ],
+      "realWorld": {
+        "scenario": "Vendor bên ngoài gửi file vào endpoint đã allowlist.",
+        "challenge": "Không được buộc hàng trăm khách đổi địa chỉ.",
+        "principle": "VPC endpoint với Elastic IP là cầu nối tương thích và managed.",
+        "takeaway": "Giữ địa chỉ cũ, thay backend EC2 bằng Transfer Family/S3."
+      }
+    }
   },
   {
     "id": "test-01-13",
@@ -392,7 +1097,65 @@
       "D"
     ],
     "explanation": "Chọn D vì Aurora Global Database có secondary liên vùng và write forwarding, cho phép ứng dụng châu Âu gửi thao tác ghi đến writer trong khi đọc dữ liệu gần người dùng với độ trễ thấp. RDS read replica không hỗ trợ ghi ngược; snapshot hay logical replication không cung cấp đồng bộ hai chiều thời gian thực, còn A thêm quy trình di trú không cần thiết.",
-    "reviewNote": "Option C chứa nhiều lỗi trích xuất (“eu-wes&1” và câu thiếu ký tự); không làm thay đổi lựa chọn D."
+    "reviewNote": "Option C chứa nhiều lỗi trích xuất (“eu-wes&1” và câu thiếu ký tự); không làm thay đổi lựa chọn D.",
+    "learningAid": {
+      "summary": "Đánh giá ghi đa Region và write forwarding của Aurora Global Database.",
+      "translation": {
+        "stem": "RDS MySQL ở us-east-1 phục vụ Mỹ và châu Âu. Hai nhóm đều cần đọc/ghi dữ liệu mới nhất, độ trễ thấp và thấy cập nhật của nhau theo thời gian thực. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tạo Aurora replica từ RDS, promote cluster, thêm eu-west-1 secondary, bật write forwarding và chạy app ở đó."
+          },
+          {
+            "id": "B",
+            "text": "Tạo RDS cross-Region replica và cấu hình gửi truy vấn ghi về primary."
+          },
+          {
+            "id": "C",
+            "text": "Sao chép snapshot, tạo RDS mới, dùng logical replication và bật write forwarding trên cluster."
+          },
+          {
+            "id": "D",
+            "text": "Chuyển thành Aurora MySQL cluster, thêm eu-west-1 secondary, bật write forwarding và dùng endpoint Aurora ở châu Âu."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Aurora Global Database",
+          "meaning": "Aurora có bản sao liên Region"
+        },
+        {
+          "term": "write forwarding",
+          "meaning": "Chuyển ghi từ secondary về primary"
+        },
+        {
+          "term": "replica",
+          "meaning": "Bản sao thường chỉ đọc"
+        }
+      ],
+      "context": "Hai Region cần dữ liệu chung, đọc gần và ghi từ cả hai phía.",
+      "requirements": [
+        "Độ trễ thấp",
+        "Cập nhật realtime",
+        "Hỗ trợ ghi từ secondary"
+      ],
+      "constraints": [
+        "Read replica không nhận ghi ngược",
+        "Snapshot/logical replication không realtime hai chiều"
+      ],
+      "focusPoints": [
+        "Phân biệt read replica với Global Database write forwarding.",
+        "Kiểm tra hướng ghi được hỗ trợ."
+      ],
+      "realWorld": {
+        "scenario": "Dịch vụ toàn cầu cập nhật hồ sơ ở nhiều châu lục.",
+        "challenge": "Không muốn mọi thao tác đọc từ châu Âu đi xa về Mỹ.",
+        "principle": "Global Database cho đọc gần và forward ghi về writer.",
+        "takeaway": "Dùng mô hình global database thay vì biến read replica thành multi-writer."
+      }
+    }
   },
   {
     "id": "test-01-14",
@@ -422,7 +1185,66 @@
       "C"
     ],
     "explanation": "Chọn C vì S3 phát sự kiện vào SQS, các worker EC2 kéo hàng đợi và scale theo queue depth, còn S3 và CloudFront phục vụ kết quả đã xử lý một cách bền vững. SNS không phải hàng đợi lưu giữ để worker xử lý lại; EBS dùng chung và EventBridge không cung cấp mô hình hàng đợi phù hợp.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Thiết kế pipeline ảnh bất đồng bộ, co giãn theo hàng đợi và CDN.",
+      "translation": {
+        "stem": "Dịch vụ ảnh cho phép tới 10.000 người dùng toàn cầu tải ảnh, chèn chữ rồi xuất lên website. Thiết kế nào nên dùng?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Lưu ảnh trong EFS, dùng CloudWatch Logs để EC2 xác định ảnh, lưu kết quả EFS và CloudFront tới EC2."
+          },
+          {
+            "id": "B",
+            "text": "Lưu S3 gửi event SNS; EC2 sau ALB đọc SNS, xử lý vào EFS, scale theo SNS và CloudFront tới ALB."
+          },
+          {
+            "id": "C",
+            "text": "Lưu S3 gửi event SQS; EC2 kéo queue, xử lý vào S3 khác, scale theo queue depth và CloudFront tới bucket kết quả."
+          },
+          {
+            "id": "D",
+            "text": "Lưu EBS dùng chung cho Spot EC2, DynamoDB ghi trạng thái, EventBridge scale và CloudFront tới ELB."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "SQS",
+          "meaning": "Hàng đợi tin nhắn bền vững"
+        },
+        {
+          "term": "queue depth",
+          "meaning": "Số tin nhắn chờ xử lý"
+        },
+        {
+          "term": "CloudFront",
+          "meaning": "CDN phân phối gần người dùng"
+        }
+      ],
+      "context": "Upload có thể burst và xử lý ảnh là công việc bất đồng bộ.",
+      "requirements": [
+        "Không mất event",
+        "Worker co giãn",
+        "Kết quả trong S3",
+        "Phân phối toàn cầu"
+      ],
+      "constraints": [
+        "EBS không phải shared filesystem",
+        "SNS không phù hợp bằng SQS cho pull/retry"
+      ],
+      "focusPoints": [
+        "Tìm hàng đợi có metric backlog.",
+        "Đặt output bất biến trong S3 và CDN."
+      ],
+      "realWorld": {
+        "scenario": "Nền tảng ảnh nhận burst trong chiến dịch marketing.",
+        "challenge": "Số upload vượt năng lực xử lý tức thời nhưng có thể chờ.",
+        "principle": "S3 + SQS + autoscaling worker tách tốc độ nhận và xử lý.",
+        "takeaway": "Để queue hấp thụ burst và dùng queue depth làm tín hiệu."
+      }
+    }
   },
   {
     "id": "test-01-15",
@@ -452,7 +1274,63 @@
       "B"
     ],
     "explanation": "Chọn B vì Swap Environment URLs là thao tác blue/green của Elastic Beanstalk, đổi URL CNAME giữa môi trường mà không phải tự sửa DNS. Redirect Route 53 hoặc sửa DNS có thời gian truyền và không phải thao tác chuyển môi trường chuẩn; thay launch configuration không hoàn tất blue/green.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Nhận diện thao tác hoàn tất blue/green của Elastic Beanstalk.",
+      "translation": {
+        "stem": "Một môi trường Elastic Beanstalk mới giống môi trường cũ đã triển khai ứng dụng. Cần làm gì tiếp theo để hoàn tất cập nhật?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Chuyển hướng tới môi trường mới bằng Route 53."
+          },
+          {
+            "id": "B",
+            "text": "Chọn tùy chọn Swap Environment URLs."
+          },
+          {
+            "id": "C",
+            "text": "Thay launch configuration của Auto Scaling."
+          },
+          {
+            "id": "D",
+            "text": "Cập nhật DNS trỏ tới môi trường green."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Elastic Beanstalk",
+          "meaning": "Dịch vụ triển khai ứng dụng managed"
+        },
+        {
+          "term": "Swap Environment URLs",
+          "meaning": "Đổi CNAME giữa hai môi trường"
+        },
+        {
+          "term": "blue/green",
+          "meaning": "Môi trường mới nhận traffic sau test"
+        }
+      ],
+      "context": "Hai môi trường Beanstalk đã sẵn sàng và cần chuyển traffic.",
+      "requirements": [
+        "Đổi endpoint",
+        "Không chờ DNS",
+        "Giữ môi trường cũ để rollback"
+      ],
+      "constraints": [
+        "Tự sửa DNS có cache và không phải thao tác native"
+      ],
+      "focusPoints": [
+        "Tìm thao tác swap tích hợp."
+      ],
+      "realWorld": {
+        "scenario": "Đội phát triển kiểm thử bản phát hành mới.",
+        "challenge": "Cần chuyển traffic nhanh và rollback dễ.",
+        "principle": "Blue/green dùng cơ chế đổi endpoint nguyên tử của nền tảng.",
+        "takeaway": "Swap URL nhanh hơn cập nhật DNS thủ công."
+      }
+    }
   },
   {
     "id": "test-01-16",
@@ -482,7 +1360,65 @@
       "B"
     ],
     "explanation": "Chọn B vì SCP ở cấp tổ chức ngăn mọi tài khoản con tạo access point không có network origin là VPC, bất kể chính sách IAM riêng của nhóm. Resource policy của access point hoặc bucket không kiểm soát tốt thao tác tạo, còn StackSets phải duy trì chính sách ở hàng trăm tài khoản.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng SCP cấp tổ chức để cưỡng chế network origin của S3 access point.",
+      "translation": {
+        "stem": "Hàng trăm account cho phép product team tạo S3 access point chỉ truy cập từ VPC. Cách nào hiệu quả nhất để cưỡng chế?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Resource policy của access point deny CreateAccessPoint nếu origin không phải VPC."
+          },
+          {
+            "id": "B",
+            "text": "SCP ở root organization deny CreateAccessPoint nếu s3:AccessPointNetworkOrigin không phải VPC."
+          },
+          {
+            "id": "C",
+            "text": "StackSets tạo IAM policy trong từng account chỉ cho phép origin VPC."
+          },
+          {
+            "id": "D",
+            "text": "Bucket policy deny CreateAccessPoint nếu origin không phải VPC."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "SCP",
+          "meaning": "Chính sách kiểm soát dịch vụ cho account"
+        },
+        {
+          "term": "network origin",
+          "meaning": "Nguồn mạng Internet hoặc VPC"
+        },
+        {
+          "term": "organization root",
+          "meaning": "Nút gốc áp policy toàn tổ chức"
+        }
+      ],
+      "context": "Product team tự tạo access point trong nhiều account.",
+      "requirements": [
+        "Enforce tập trung",
+        "Không truy cập Internet",
+        "Ít policy riêng"
+      ],
+      "constraints": [
+        "Resource/bucket policy không kiểm soát toàn bộ hành động tạo",
+        "StackSets cần đồng bộ"
+      ],
+      "focusPoints": [
+        "Áp guardrail ở Organizations.",
+        "Dùng condition key của API tạo."
+      ],
+      "realWorld": {
+        "scenario": "Doanh nghiệp đa account chuẩn hóa truy cập S3.",
+        "challenge": "Account mới không được vô tình mở access point ra Internet.",
+        "principle": "SCP là hàng rào tập trung bất kể IAM policy bên dưới.",
+        "takeaway": "Đặt deny có điều kiện ở root/OU."
+      }
+    }
   },
   {
     "id": "test-01-17",
@@ -512,7 +1448,65 @@
       "C"
     ],
     "explanation": "Chọn C vì DynamoDB auto scaling tự tăng throughput trong bốn giờ cao điểm và giảm ngoài giờ, phù hợp mẫu tải dự đoán được mà ít thao tác thủ công. On-demand có thể đơn giản nhưng thường đắt hơn ở tải ổn định; giảm provisioned cố định gây throttling, còn reserved capacity không điều chỉnh theo giờ.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Chọn DynamoDB auto scaling cho tải đỉnh có quy luật.",
+      "translation": {
+        "stem": "Nhà hàng có tải cao dự đoán được bốn giờ mỗi ngày. DynamoDB đang provisioned 100.000 RCU và 80.000 WCU suốt ngày; muốn giảm chi phí và công sức. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Giảm RCU và WCU provisioned."
+          },
+          {
+            "id": "B",
+            "text": "Đổi bảng sang on-demand capacity."
+          },
+          {
+            "id": "C",
+            "text": "Bật DynamoDB auto scaling."
+          },
+          {
+            "id": "D",
+            "text": "Mua reserved capacity một năm đủ cho đỉnh bốn giờ mỗi ngày."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "RCU/WCU",
+          "meaning": "Đơn vị thông lượng đọc/ghi DynamoDB"
+        },
+        {
+          "term": "auto scaling",
+          "meaning": "Tự điều chỉnh provisioned capacity"
+        },
+        {
+          "term": "on-demand",
+          "meaning": "Tính theo request không cần provision"
+        }
+      ],
+      "context": "Bảng có đỉnh lặp lại hàng ngày và thấp ngoài giờ.",
+      "requirements": [
+        "Đáp ứng đỉnh",
+        "Giảm capacity ngoài đỉnh",
+        "Ít thao tác"
+      ],
+      "constraints": [
+        "Giảm cố định có thể throttling",
+        "On-demand thường đắt hơn tải có quy luật"
+      ],
+      "focusPoints": [
+        "Nhận diện tải dự đoán được.",
+        "So sánh auto scaling và on-demand."
+      ],
+      "realWorld": {
+        "scenario": "POS của chuỗi nhà hàng tăng mạnh giờ ăn.",
+        "challenge": "Provision đỉnh cả ngày gây lãng phí.",
+        "principle": "Auto scaling theo utilization cân bằng hiệu năng/chi phí.",
+        "takeaway": "Dùng capacity động thay vì giữ đỉnh cố định."
+      }
+    }
   },
   {
     "id": "test-01-18",
@@ -547,7 +1541,69 @@
       "C"
     ],
     "explanation": "A cung cấp Direct Connect private VIF từ mạng on-premises vào VPC riêng, còn C dùng S3 interface endpoint để truy cập riêng tư tới bucket ở các tài khoản. Public VIF không phải lựa chọn đường riêng tới VPC và gateway endpoint không được truy cập trực tiếp từ on-premises qua DX theo thiết kế này; VPC peering giữa các VPC không cần cho S3.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Thiết kế kết nối riêng từ on-premises tới S3 nhiều account.",
+      "translation": {
+        "stem": "Công ty cần gửi dữ liệu từ on-premises vào S3 ở ba account, không đi qua Internet và chưa có kết nối chuyên dụng. Chọn hai bước.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tạo networking account/private VPC và Direct Connect private VIF từ on-premises."
+          },
+          {
+            "id": "B",
+            "text": "Tạo networking account/private VPC và Direct Connect public VIF."
+          },
+          {
+            "id": "C",
+            "text": "Tạo S3 interface endpoint trong networking account."
+          },
+          {
+            "id": "D",
+            "text": "Tạo S3 gateway endpoint trong networking account."
+          },
+          {
+            "id": "E",
+            "text": "Peer các VPC chứa bucket với networking VPC."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "private VIF",
+          "meaning": "Kênh Direct Connect riêng tới VPC"
+        },
+        {
+          "term": "interface endpoint",
+          "meaning": "ENI riêng truy cập dịch vụ AWS"
+        },
+        {
+          "term": "gateway endpoint",
+          "meaning": "Route riêng tới S3 trong VPC"
+        }
+      ],
+      "context": "Hệ thống tại chỗ phải tải lên S3 nhiều account qua đường không công khai.",
+      "requirements": [
+        "Private path",
+        "Truy cập S3 cross-account",
+        "Không dùng Internet"
+      ],
+      "constraints": [
+        "Gateway endpoint không nhận truy cập on-premises theo cách này",
+        "VPC peering không cần cho S3"
+      ],
+      "focusPoints": [
+        "Phân biệt public/private VIF.",
+        "Chọn interface endpoint cho nguồn on-premises."
+      ],
+      "realWorld": {
+        "scenario": "Công ty dùng DX tập trung để đưa backup vào S3.",
+        "challenge": "Dữ liệu nhạy cảm không được đi qua Internet.",
+        "principle": "DX private VIF kết hợp interface endpoint cung cấp đường riêng.",
+        "takeaway": "Dùng networking account quản lý kết nối và endpoint."
+      }
+    }
   },
   {
     "id": "test-01-19",
@@ -577,7 +1633,65 @@
       "D"
     ],
     "explanation": "Chọn D vì cost allocation tags cung cấp chiều phân tích chi phí, còn giới hạn quyền của các role liên kết để buộc yêu cầu cost center và project ID cho tài nguyên mới. Tag Editor chỉ xử lý hiện tại; Config/Lambda chỉ phát hiện hoặc sửa sau khi tạo, còn SCP không dễ áp dụng đồng nhất điều kiện tag cho mọi API RDS và DynamoDB.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Kết hợp cost allocation tags với kiểm soát tag khi tạo.",
+      "translation": {
+        "stem": "Chi phí RDS/DynamoDB tăng, nhiều account thiếu tag nhất quán. Hạ tầng mới qua CloudFormation; mọi bảng và DB instance phải có cost center và project ID. Chiến lược nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dùng Tag Editor cho resource hiện có, tạo cost allocation tags và chờ 24 giờ."
+          },
+          {
+            "id": "B",
+            "text": "Dùng Config cảnh báo untagged và Lambda trung tâm gắn tag mỗi giờ qua cross-account role."
+          },
+          {
+            "id": "C",
+            "text": "Dùng Tag Editor, tạo cost allocation tags và SCP chặn resource thiếu hai tag."
+          },
+          {
+            "id": "D",
+            "text": "Tạo cost allocation tags và cập nhật federated roles để hạn chế provision resource thiếu hai tag."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "cost allocation tag",
+          "meaning": "Tag được kích hoạt để phân tích chi phí"
+        },
+        {
+          "term": "federated role",
+          "meaning": "Role cấp qua identity federation"
+        },
+        {
+          "term": "tag enforcement",
+          "meaning": "Cưỡng chế tag lúc tạo"
+        }
+      ],
+      "context": "Finance cần phân bổ chi phí hiện tại và bảo đảm resource tương lai có định danh.",
+      "requirements": [
+        "Tag hiện hữu",
+        "Bắt buộc tag mới",
+        "Áp dụng tập trung"
+      ],
+      "constraints": [
+        "Config/Lambda sửa sau khi tạo",
+        "SCP không đồng nhất cho mọi API"
+      ],
+      "focusPoints": [
+        "Tách remediation hiện tại khỏi prevention tương lai.",
+        "Dùng policy tạo resource để chặn từ đầu."
+      ],
+      "realWorld": {
+        "scenario": "Tổ chức cần chargeback giữa nhiều đơn vị.",
+        "challenge": "Tag sai làm Cost Explorer phân loại sai.",
+        "principle": "Cost allocation chỉ hữu ích khi tag chuẩn hóa và bắt buộc.",
+        "takeaway": "Cập nhật vai trò triển khai để resource thiếu tag bị từ chối."
+      }
+    }
   },
   {
     "id": "test-01-20",
@@ -607,7 +1721,65 @@
       "B"
     ],
     "explanation": "Chọn B vì ORC trên S3 được Athena đọc theo truy vấn SQL và chỉ tính phí dữ liệu quét, không phải duy trì EMR hay Redshift ngoài khung giờ 5–10 PM. Redshift Spectrum vẫn cần cụm Redshift; EMRFS/Presto tiếp tục giữ hạ tầng, còn lưu toàn bộ vào Redshift tốn chi phí và không cần thiết.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Chọn truy vấn serverless trên S3 cho dữ liệu ORC theo giờ.",
+      "translation": {
+        "stem": "Dữ liệu IoT dạng ORC trên HDFS của EMR; Presto quét nhiều dữ liệu nhưng chỉ chạy 17–22 giờ và dưới 15 phút. EMR persistent quá đắt. Giải pháp SQL nào tiết kiệm nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Lưu dữ liệu S3 và dùng Redshift Spectrum."
+          },
+          {
+            "id": "B",
+            "text": "Lưu S3, dùng Glue Data Catalog và Athena."
+          },
+          {
+            "id": "C",
+            "text": "Lưu EMRFS và tiếp tục dùng Presto trên EMR."
+          },
+          {
+            "id": "D",
+            "text": "Lưu vào Redshift và dùng Redshift truy vấn."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "ORC",
+          "meaning": "Định dạng cột tối ưu phân tích"
+        },
+        {
+          "term": "Athena",
+          "meaning": "Truy vấn SQL serverless trên S3"
+        },
+        {
+          "term": "Glue Data Catalog",
+          "meaning": "Catalog metadata dữ liệu"
+        }
+      ],
+      "context": "Dữ liệu dạng cột phù hợp object storage và truy vấn gián đoạn.",
+      "requirements": [
+        "SQL",
+        "Không chạy cluster liên tục",
+        "Tính theo dữ liệu quét"
+      ],
+      "constraints": [
+        "EMR/Redshift thường trực tạo chi phí nền",
+        "Spectrum vẫn cần cluster"
+      ],
+      "focusPoints": [
+        "Ưu tiên serverless cho workload gián đoạn.",
+        "Đánh giá định dạng cột giảm bytes scan."
+      ],
+      "realWorld": {
+        "scenario": "Đội phân tích truy vấn data lake buổi tối.",
+        "challenge": "Duy trì EMR cả ngày lãng phí.",
+        "principle": "Athena + Glue biến S3 thành data lake truy vấn theo nhu cầu.",
+        "takeaway": "Tối ưu layout và trả tiền theo query thay vì cluster."
+      }
+    }
   },
   {
     "id": "test-01-21",
@@ -637,7 +1809,65 @@
       "C"
     ],
     "explanation": "Chọn C vì AppStream 2.0 phát ứng dụng Windows qua trình duyệt nên người dùng Linux không cần bản native hay viết lại, đồng thời user pool cung cấp xác thực đơn giản. WorkSpaces theo từng người đắt hơn và Cognito identity pools không phải cách phù hợp; EC2 RDP cần quản trị nhiều máy, còn container hóa đòi hỏi tái cấu trúc.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Chọn AppStream để rehost ứng dụng desktop Windows cho người dùng Linux.",
+      "translation": {
+        "stem": "Ứng dụng desktop Windows đóng gói sẵn cần chạy cho nhân viên, nhiều người dùng Linux. Công ty có AD tại chỗ và muốn xác thực đơn giản, ít phát triển nhất. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Cấp một WorkSpaces cho mỗi người, dùng Cognito identity pools và chạy ứng dụng trong WorkSpaces."
+          },
+          {
+            "id": "B",
+            "text": "Tạo ASG EC2 Windows join AD tại chỗ, rồi yêu cầu người dùng chạy qua Windows Remote Desktop."
+          },
+          {
+            "id": "C",
+            "text": "Dùng AppStream 2.0 image builder, fleet On-Demand với dynamic autoscaling, user pools và browser streaming."
+          },
+          {
+            "id": "D",
+            "text": "Refactor thành web app, chạy ECS Fargate và xác thực Cognito user pools."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "AppStream 2.0",
+          "meaning": "Streaming ứng dụng desktop qua trình duyệt"
+        },
+        {
+          "term": "image builder",
+          "meaning": "Công cụ tạo image ứng dụng"
+        },
+        {
+          "term": "user pool",
+          "meaning": "Kho người dùng xác thực"
+        }
+      ],
+      "context": "Ứng dụng Windows không chạy native trên Linux và chưa cần viết lại thành web.",
+      "requirements": [
+        "Rehost",
+        "Truy cập browser",
+        "Xác thực và autoscale"
+      ],
+      "constraints": [
+        "Refactor tốn công",
+        "EC2 RDP/WorkSpaces cần quản trị nhiều phiên"
+      ],
+      "focusPoints": [
+        "Tìm dịch vụ streaming giữ nguyên binary.",
+        "Dùng user pool native phù hợp."
+      ],
+      "realWorld": {
+        "scenario": "Công ty mua lại đội ngũ dùng Linux nhưng phụ thuộc phần mềm Windows.",
+        "challenge": "Cần mở ứng dụng nhanh mà không viết lại.",
+        "principle": "Application streaming là rehost phù hợp cho desktop legacy.",
+        "takeaway": "Dùng AppStream để cung cấp browser experience và fleet co giãn."
+      }
+    }
   },
   {
     "id": "test-01-22",
@@ -667,7 +1897,65 @@
       "B"
     ],
     "explanation": "Chọn B vì Route 53 Resolver outbound endpoint và forwarding rule chuyển các truy vấn company.example qua VPN đến DNS on-premises. Inbound endpoint phục vụ truy vấn từ on-premises vào VPC, không phải chiều cần thiết; private zone rỗng và hosts file không giải quyết việc quản lý DNS hiện hữu.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Thiết lập Route 53 Resolver outbound forwarding tới DNS on-premises.",
+      "translation": {
+        "stem": "EC2 trong VPC phải phân giải hostname company.example, trong khi zone chỉ có trên DNS nội bộ tại chỗ qua VPN. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tạo private zone rỗng ở Route 53 và thêm NS của zone mới vào zone on-premises."
+          },
+          {
+            "id": "B",
+            "text": "Bật DNS hostnames, tạo outbound Resolver endpoint và rule chuyển company.example tới DNS on-premises."
+          },
+          {
+            "id": "C",
+            "text": "Bật DNS hostnames, tạo inbound Resolver endpoint và cấu hình DNS on-premises forward tới endpoint."
+          },
+          {
+            "id": "D",
+            "text": "Dùng Systems Manager cài hosts file khi instance running."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Route 53 Resolver",
+          "meaning": "DNS resolver managed của VPC"
+        },
+        {
+          "term": "outbound endpoint",
+          "meaning": "Điểm gửi query từ VPC ra mạng khác"
+        },
+        {
+          "term": "forwarding rule",
+          "meaning": "Quy tắc chuyển domain tới DNS đích"
+        }
+      ],
+      "context": "VPC AWS là DNS client, authoritative zone nằm tại doanh nghiệp.",
+      "requirements": [
+        "Phân giải company.example",
+        "Dùng VPN",
+        "Quản lý hostname động"
+      ],
+      "constraints": [
+        "Inbound endpoint phục vụ chiều ngược",
+        "Hosts file không mở rộng"
+      ],
+      "focusPoints": [
+        "Xác định chiều truy vấn DNS.",
+        "Dùng forwarding rule cho zone tại chỗ."
+      ],
+      "realWorld": {
+        "scenario": "Ứng dụng AWS gọi dịch vụ cũ bằng hostname nội bộ.",
+        "challenge": "IP backend thay đổi nên không thể duy trì hosts file.",
+        "principle": "Resolver outbound kết nối DNS giữa VPC và mạng doanh nghiệp.",
+        "takeaway": "Chuyển đúng domain qua VPN thay vì sao chép zone thủ công."
+      }
+    }
   },
   {
     "id": "test-01-23",
@@ -697,7 +1985,66 @@
       "B"
     ],
     "explanation": "Chọn B theo ý định SSE-KMS: đặt mã hóa mặc định bằng KMS, từ chối PutObject không mã hóa và tải lại các đối tượng cũ để chúng được mã hóa lại. Thay đổi mặc định không mã hóa lại dữ liệu hiện có, nên C thiếu bước di chuyển; A/D mô tả loại khóa không hợp lệ hoặc không phải KMS customer-managed key. Cần hiểu “KMS managed” trong nguồn là khóa KMS do đội bảo mật kiểm soát; nếu hiểu đúng nghĩa AWS-managed key thì câu hỏi không có đáp án hoàn toàn chính xác.",
-    "reviewNote": "Nguồn mâu thuẫn giữa yêu cầu customer-managed key và cách gọi “AWS KMS managed encryption keys” ở B; đáp án B được chọn theo ý định SSE-KMS."
+    "reviewNote": "Nguồn mâu thuẫn giữa yêu cầu customer-managed key và cách gọi “AWS KMS managed encryption keys” ở B; đáp án B được chọn theo ý định SSE-KMS.",
+    "learningAid": {
+      "summary": "Di chuyển object S3 sang SSE-KMS và bắt buộc mã hóa tương lai.",
+      "translation": {
+        "stem": "Bucket chứa PII đang dùng SSE-S3, chưa bật versioning. Tất cả object hiện tại và tương lai phải dùng khóa KMS do đội bảo mật quản lý. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Đổi default encryption thành SSE-S3 với customer key, tải lại object và deny PutObject không mã hóa."
+          },
+          {
+            "id": "B",
+            "text": "Đổi default encryption thành SSE-KMS, deny PutObject không mã hóa và tải lại mọi object."
+          },
+          {
+            "id": "C",
+            "text": "Đổi default encryption thành SSE-KMS và policy tự mã hóa object khi GetObject/PutObject."
+          },
+          {
+            "id": "D",
+            "text": "Đổi default encryption thành AES-256 với customer key, deny PutObject và tải lại object."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "SSE-KMS",
+          "meaning": "Mã hóa server-side bằng AWS KMS"
+        },
+        {
+          "term": "customer managed key",
+          "meaning": "Khóa KMS do khách hàng quản lý"
+        },
+        {
+          "term": "default encryption",
+          "meaning": "Mã hóa mặc định object mới"
+        }
+      ],
+      "context": "Bucket có object cũ và mới, cần khóa do security team kiểm soát.",
+      "requirements": [
+        "Mã hóa dữ liệu hiện tại",
+        "Bắt buộc object mới",
+        "Không dựa vào versioning"
+      ],
+      "constraints": [
+        "Default encryption không mã hóa object cũ",
+        "Policy không mã hóa khi GetObject",
+        "SSE-S3/AES-256 không phải customer KMS"
+      ],
+      "focusPoints": [
+        "Tách backfill object cũ khỏi default mới.",
+        "Dùng deny condition để enforce."
+      ],
+      "realWorld": {
+        "scenario": "Đội bảo mật áp chính sách KMS cho kho PII.",
+        "challenge": "Object cũ không tự đổi encryption khi đổi cấu hình bucket.",
+        "principle": "Encryption policy cần default, enforcement và re-encryption.",
+        "takeaway": "Đặt SSE-KMS đúng loại key rồi copy/re-upload object cũ."
+      }
+    }
   },
   {
     "id": "test-01-24",
@@ -737,7 +2084,73 @@
       "F"
     ],
     "explanation": "A ghi toàn bộ S3 object data events, D đưa sự kiện xóa qua EventBridge tới SNS để gửi email, và F lưu log ở bucket riêng với Lifecycle giữ năm năm. Server access logging không cung cấp cơ chế cảnh báo thời gian thực và SES không phải đích sự kiện S3 trực tiếp; Timestream không cần thiết cho lưu trữ log dài hạn.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Thiết kế audit S3 dài hạn và cảnh báo xóa theo sự kiện.",
+      "translation": {
+        "stem": "Bucket S3 nhạy cảm phải log mọi hoạt động object trong 5 năm và gửi email mỗi khi có nỗ lực xóa. Chọn ba bước.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Cấu hình CloudTrail ghi S3 data events."
+          },
+          {
+            "id": "B",
+            "text": "Cấu hình S3 server access logging."
+          },
+          {
+            "id": "C",
+            "text": "Cấu hình S3 gửi deletion event trực tiếp tới SES."
+          },
+          {
+            "id": "D",
+            "text": "Cấu hình S3 gửi deletion event tới EventBridge rồi SNS topic."
+          },
+          {
+            "id": "E",
+            "text": "Cấu hình S3 gửi log tới Timestream với tiering."
+          },
+          {
+            "id": "F",
+            "text": "Tạo bucket S3 mới lưu log và đặt Lifecycle policy."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "CloudTrail data event",
+          "meaning": "Audit object-level activity"
+        },
+        {
+          "term": "EventBridge",
+          "meaning": "Bus định tuyến sự kiện"
+        },
+        {
+          "term": "Lifecycle policy",
+          "meaning": "Tự chuyển/xóa dữ liệu theo tuổi"
+        }
+      ],
+      "context": "Dữ liệu nhạy cảm cần audit, retention và alert.",
+      "requirements": [
+        "Log mọi object",
+        "Giữ 5 năm",
+        "Email khi xóa"
+      ],
+      "constraints": [
+        "Server access log không cảnh báo realtime",
+        "SES không phải đích S3 event trực tiếp"
+      ],
+      "focusPoints": [
+        "Phân biệt audit trail và access log.",
+        "Ghép EventBridge/SNS với Lifecycle."
+      ],
+      "realWorld": {
+        "scenario": "Đội an ninh giám sát bucket dữ liệu khách hàng.",
+        "challenge": "Cần bằng chứng lâu dài và phản ứng ngay với xóa.",
+        "principle": "Audit, retention và alert là ba chức năng riêng.",
+        "takeaway": "CloudTrail ghi, bucket lifecycle giữ, EventBridge/SNS cảnh báo."
+      }
+    }
   },
   {
     "id": "test-01-25",
@@ -767,7 +2180,66 @@
       "B"
     ],
     "explanation": "Chọn B vì SQS hấp thụ burst, Auto Scaling dựa trên tuổi thông điệp để tăng/giảm worker, và dead-letter queue giữ các sự kiện xử lý lỗi. SNS Lambda thiếu mô hình scale worker và DLQ rõ ràng theo yêu cầu; DynamoDB Streams hoặc EventBridge không thay thế hàng đợi xử lý lại phù hợp.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Chọn hàng đợi có autoscaling worker và dead-letter queue.",
+      "translation": {
+        "stem": "Hệ thống xử lý event phải scale theo số event; event lỗi phải chuyển sang queue riêng để review. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "SNS gọi Lambda, dùng on-failure destination tới SQS."
+          },
+          {
+            "id": "B",
+            "text": "SQS, ASG scale theo ApproximateAgeOfOldestMessage và ghi message lỗi vào DLQ."
+          },
+          {
+            "id": "C",
+            "text": "DynamoDB table, Streams và Lambda xử lý."
+          },
+          {
+            "id": "D",
+            "text": "EventBridge, EC2 ASG sau ALB, retry event và DLQ khi lỗi."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "dead-letter queue",
+          "meaning": "Queue chứa message thất bại"
+        },
+        {
+          "term": "ApproximateAgeOfOldestMessage",
+          "meaning": "Tuổi message lâu nhất trong SQS"
+        },
+        {
+          "term": "backlog",
+          "meaning": "Lượng công việc chờ"
+        }
+      ],
+      "context": "Event đến không đều, worker cần scale theo backlog và bảo toàn event lỗi.",
+      "requirements": [
+        "Scale in/out",
+        "Retry",
+        "Cô lập lỗi",
+        "Review message"
+      ],
+      "constraints": [
+        "Streams/EventBridge không thay queue worker đơn giản",
+        "ALB không phải target SQS phù hợp"
+      ],
+      "focusPoints": [
+        "Dùng SQS làm buffer và DLQ.",
+        "Dùng tuổi message/backlog làm tín hiệu."
+      ],
+      "realWorld": {
+        "scenario": "Pipeline nhận batch event lớn bất chợt.",
+        "challenge": "Message hỏng không được chặn hoặc mất các message khác.",
+        "principle": "Queue tách producer/consumer và DLQ cô lập ngoại lệ.",
+        "takeaway": "Theo dõi backlog, scale worker và redrive message lỗi."
+      }
+    }
   },
   {
     "id": "test-01-26",
@@ -797,7 +2269,65 @@
       "D"
     ],
     "explanation": "Chọn D vì Service Catalog TagOptions áp đặt danh sách giá trị project khi các CloudFormation product được cấp phát, và portfolio có thể chia sẻ tới các OU. Tag policy chủ yếu báo cáo tuân thủ, còn SCP/IAM trong A–C chỉ kiểm tra sự hiện diện của tag hoặc phải lặp cấu hình mà không kiểm soát tốt giá trị cho mọi tài nguyên.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Phân biệt tag policy với enforcement và chọn Service Catalog.",
+      "translation": {
+        "stem": "Organization dùng CloudFormation; finance yêu cầu giá trị project định trước và muốn cưỡng chế tag project cho resource mới với ít công sức. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tag policy ở management account và SCP deny CreateStack nếu thiếu project tag."
+          },
+          {
+            "id": "B",
+            "text": "Tag policy trong từng OU và SCP deny CreateStack nếu thiếu tag."
+          },
+          {
+            "id": "C",
+            "text": "Tag policy management account và IAM deny CreateStack cho từng user."
+          },
+          {
+            "id": "D",
+            "text": "Service Catalog quản lý stack như product, TagOptions kiểm soát project và chia sẻ portfolio tới OU."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "tag policy",
+          "meaning": "Policy chuẩn hóa key/value tag"
+        },
+        {
+          "term": "Service Catalog",
+          "meaning": "Danh mục product được phê duyệt"
+        },
+        {
+          "term": "TagOptions",
+          "meaning": "Ràng buộc tag khi provision"
+        }
+      ],
+      "context": "Các đội dùng CloudFormation nhưng finance cần project value nhất quán.",
+      "requirements": [
+        "Enforce value",
+        "Áp dụng nhiều OU",
+        "Ít policy thủ công"
+      ],
+      "constraints": [
+        "Tag policy thường chỉ báo cáo compliance",
+        "IAM/SCP lặp lại không kiểm soát value tốt"
+      ],
+      "focusPoints": [
+        "Phân biệt chuẩn hóa với cưỡng chế tag.",
+        "Chọn control point lúc provision."
+      ],
+      "realWorld": {
+        "scenario": "Doanh nghiệp dùng product catalog cho chargeback.",
+        "challenge": "Sai project tag làm báo cáo Cost Explorer sai.",
+        "principle": "TagOptions áp ràng buộc ngay lúc cấp product.",
+        "takeaway": "Chuẩn hóa product provisioning thay vì sửa sau triển khai."
+      }
+    }
   },
   {
     "id": "test-01-27",
@@ -827,7 +2357,65 @@
       "B"
     ],
     "explanation": "Chọn B vì DataSync hỗ trợ đồng bộ SMB của Windows file server sang FSx theo lịch và tận dụng kết nối Direct Connect, giữ mô hình file system phù hợp Windows. File gateway là giải pháp thay thế/caching chứ không phải chiến lược sao chép hằng ngày; Data Pipeline đã lỗi thời, còn EFS dùng NFS không phù hợp bằng FSx for Windows cho nguồn Windows.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Chọn DataSync định kỳ giữa SMB Windows và FSx.",
+      "translation": {
+        "stem": "File server Windows tại chỗ tạo 5 GB/ngày; workload AWS cần dữ liệu trên file system cloud và Direct Connect đã có. Chiến lược migration nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dùng Storage Gateway file gateway thay file server và trỏ share hiện tại vào gateway."
+          },
+          {
+            "id": "B",
+            "text": "Dùng DataSync lập lịch hằng ngày đồng bộ Windows file server với FSx."
+          },
+          {
+            "id": "C",
+            "text": "Dùng Data Pipeline lập lịch đồng bộ Windows server với EFS."
+          },
+          {
+            "id": "D",
+            "text": "Dùng DataSync lập lịch hằng ngày đồng bộ Windows server với EFS."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "DataSync",
+          "meaning": "Dịch vụ đồng bộ dữ liệu managed"
+        },
+        {
+          "term": "SMB",
+          "meaning": "Giao thức file sharing Windows"
+        },
+        {
+          "term": "FSx for Windows",
+          "meaning": "File system managed tương thích Windows"
+        }
+      ],
+      "context": "Dữ liệu Windows cần đồng bộ đều đặn qua kết nối riêng.",
+      "requirements": [
+        "Giữ file semantics",
+        "Đồng bộ 5 GB/ngày",
+        "Ít vận hành"
+      ],
+      "constraints": [
+        "File Gateway là thay thế/caching",
+        "EFS dùng NFS, kém phù hợp FSx Windows cho nguồn SMB"
+      ],
+      "focusPoints": [
+        "Xác định protocol nguồn/đích.",
+        "Dùng DataSync cho lịch lặp."
+      ],
+      "realWorld": {
+        "scenario": "Ứng dụng AWS cần dữ liệu từ file server trong giai đoạn chuyển đổi.",
+        "challenge": "Dữ liệu mới phát sinh mỗi ngày và chưa thể cutover.",
+        "principle": "DataSync cung cấp task incremental và schedule.",
+        "takeaway": "Chọn FSx Windows để giữ semantics file server."
+      }
+    }
   },
   {
     "id": "test-01-28",
@@ -857,7 +2445,65 @@
       "D"
     ],
     "explanation": "Chọn D vì Lambda@Edge có thể xử lý phản hồi CloudFront và loại bỏ header dựa trên User-Agent trong khi ALB tích hợp các Lambda backend. CloudFront Function không phù hợp xử lý logic phản hồi origin phức tạp; API Gateway mapping không cung cấp cách linh hoạt tương đương cho header theo User-Agent ở các lựa chọn kia.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Chọn Lambda@Edge để biến đổi response header theo User-Agent.",
+      "translation": {
+        "stem": "Dịch vụ metadata cần bỏ HTTP header không được thiết bị cũ hỗ trợ, nhận diện qua User-Agent. Lambda backend đã sẵn sàng; muốn serverless và tương thích. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "CloudFront trước ALB và CloudFront Function xóa header theo User-Agent."
+          },
+          {
+            "id": "B",
+            "text": "API Gateway REST gọi Lambda và sửa gateway response mặc định theo User-Agent."
+          },
+          {
+            "id": "C",
+            "text": "API Gateway HTTP gọi Lambda và response mapping template xóa header."
+          },
+          {
+            "id": "D",
+            "text": "CloudFront trước ALB và Lambda@Edge xóa response header theo User-Agent."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Lambda@Edge",
+          "meaning": "Lambda chạy tại edge CloudFront"
+        },
+        {
+          "term": "User-Agent",
+          "meaning": "Header nhận diện loại client"
+        },
+        {
+          "term": "response header",
+          "meaning": "Header trong HTTP response"
+        }
+      ],
+      "context": "Thiết bị cũ không hiểu header mới nên response cần điều chỉnh ở edge.",
+      "requirements": [
+        "Serverless",
+        "Xử lý theo User-Agent",
+        "Sửa response header"
+      ],
+      "constraints": [
+        "Mapping/API Gateway kém linh hoạt cho response theo client",
+        "Logic cần thấy request/response"
+      ],
+      "focusPoints": [
+        "Tìm điểm xử lý response gần client.",
+        "Phân biệt CloudFront Functions và Lambda@Edge."
+      ],
+      "realWorld": {
+        "scenario": "Một API phục vụ cả TV cũ và client hiện đại.",
+        "challenge": "Không thể nâng firmware nên phải thích nghi response.",
+        "principle": "Edge logic giữ backend chung và giảm latency.",
+        "takeaway": "Dùng Lambda@Edge cho logic response phức tạp."
+      }
+    }
   },
   {
     "id": "test-01-29",
@@ -887,7 +2533,67 @@
       "A"
     ],
     "explanation": "Chọn A vì chuyển Auto Scaling tạm thời sang subnet còn lại, tái tạo các subnet thành các CIDR /25 rồi di chuyển dần cho phép giữ dịch vụ và cuối cùng dùng ba AZ trong cùng /23. B chấm dứt instance gây gián đoạn, C không thể có VPC trùng CIDR và thay VPC, còn D mô tả sửa CIDR subnet tại chỗ vốn không được hỗ trợ.",
-    "reviewNote": "Các phương án diễn đạt việc chia lại CIDR chưa chuẩn (subnet không thể resize trực tiếp); A được hiểu là xóa/tạo lại sau khi di chuyển workload."
+    "reviewNote": "Các phương án diễn đạt việc chia lại CIDR chưa chuẩn (subnet không thể resize trực tiếp); A được hiểu là xóa/tạo lại sau khi di chuyển workload.",
+    "learningAid": {
+      "summary": "Thiết kế chia lại subnet không downtime khi bổ sung AZ.",
+      "translation": {
+        "stem": "ASG dùng hai subnet /24 trong VPC /23, VPC nối on-premises không được gián đoạn. AZ thứ ba xuất hiện; cần dùng ba AZ không thêm IPv4. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tạm dùng AZ2, tạo lại AZ1 thành nửa CIDR, chuyển ASG, rồi chia phần còn lại cho AZ2 mới và AZ3."
+          },
+          {
+            "id": "B",
+            "text": "Terminate instance AZ1, tạo subnet nhỏ hơn; lặp lại AZ2, rồi tạo AZ3 và cập nhật ASG."
+          },
+          {
+            "id": "C",
+            "text": "Tạo VPC mới cùng IPv4, ba subnet và chuyển ASG."
+          },
+          {
+            "id": "D",
+            "text": "Sửa trực tiếp CIDR AZ1/AZ2 thành nửa cũ, tạo AZ3 và cập nhật ASG."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "CIDR",
+          "meaning": "Dải địa chỉ IP của subnet/VPC"
+        },
+        {
+          "term": "subnet migration",
+          "meaning": "Di chuyển tài nguyên giữa subnet"
+        },
+        {
+          "term": "downtime",
+          "meaning": "Thời gian dịch vụ không phục vụ"
+        }
+      ],
+      "context": "VPC /23 đã chia hết cho hai /24 nhưng cần ba subnet nhỏ hơn.",
+      "requirements": [
+        "Giữ kết nối",
+        "Không thêm CIDR",
+        "Không downtime",
+        "Ba AZ"
+      ],
+      "constraints": [
+        "Subnet không resize trực tiếp",
+        "Terminate hàng loạt gây gián đoạn",
+        "Không tạo VPC trùng CIDR"
+      ],
+      "focusPoints": [
+        "Di chuyển workload trước khi xóa subnet.",
+        "Nhớ subnet CIDR không sửa tùy ý."
+      ],
+      "realWorld": {
+        "scenario": "Workload quan trọng muốn dùng AZ mới.",
+        "challenge": "Không thể ngắt on-premises hoặc dừng cả ASG.",
+        "principle": "Di chuyển có thứ tự giúp giải phóng subnet rồi tái tạo /25.",
+        "takeaway": "Bảo toàn capacity ở AZ đang hoạt động từng bước."
+      }
+    }
   },
   {
     "id": "test-01-30",
@@ -917,7 +2623,65 @@
       "D"
     ],
     "explanation": "Chọn D vì Redshift Concurrency Scaling tự bổ sung cụm tạm cho các truy vấn đọc đồng thời, giữ cụm chính phục vụ đọc và ghi mà không phải resize thường xuyên. EMR chuyển việc sẽ tạo thêm pipeline; classic/elastic resize thay đổi cụm chính và có thể ảnh hưởng workload liên tục.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng Redshift Concurrency Scaling cho burst query đọc.",
+      "translation": {
+        "stem": "Redshift cluster reserved nodes bị burst bởi báo cáo audit với query đọc CPU-intensive; cluster vẫn phải phục vụ đọc và ghi. Giải pháp tiết kiệm nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dựng EMR để offload xử lý."
+          },
+          {
+            "id": "B",
+            "text": "Lambda dùng classic resize khi CPU 80%."
+          },
+          {
+            "id": "C",
+            "text": "Lambda dùng elastic resize khi CPU 80%."
+          },
+          {
+            "id": "D",
+            "text": "Bật Concurrency Scaling cho Redshift."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Concurrency Scaling",
+          "meaning": "Tài nguyên tạm cho query đồng thời"
+        },
+        {
+          "term": "elastic resize",
+          "meaning": "Đổi kích thước cluster nhanh"
+        },
+        {
+          "term": "read query",
+          "meaning": "Query chỉ đọc"
+        }
+      ],
+      "context": "Cluster có burst đọc nhưng workload ghi liên tục.",
+      "requirements": [
+        "Xử lý burst đọc",
+        "Không chặn ghi",
+        "Chi phí theo nhu cầu"
+      ],
+      "constraints": [
+        "Resize đổi cluster chính",
+        "EMR cần pipeline riêng"
+      ],
+      "focusPoints": [
+        "Phân biệt burst concurrency với capacity thường trực.",
+        "Giữ cluster chính phục vụ read/write."
+      ],
+      "realWorld": {
+        "scenario": "Đội audit chạy nhiều query nặng ngắn hạn.",
+        "challenge": "Resize cluster đang phục vụ giao dịch có thể ảnh hưởng user.",
+        "principle": "Concurrency Scaling mở rộng tạm query mà không đổi cluster chính.",
+        "takeaway": "Dùng capacity tạm cho burst thay vì provision dư tháng."
+      }
+    }
   },
   {
     "id": "test-01-31",
@@ -947,7 +2711,66 @@
       "D"
     ],
     "explanation": "Chọn D vì AWS Backup có thể lập lịch sao lưu Aurora mỗi giờ và sao chép sang Region khác, đáp ứng RPO một giờ với chi phí thấp hơn Aurora Global Database. Backtrack chỉ ở cùng Region và snapshot hằng ngày không đạt RPO; DMS sang S3 không tạo bản sao database sẵn sàng phục hồi trực tiếp.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "So sánh global replication với backup liên Region theo RPO và chi phí.",
+      "translation": {
+        "stem": "Ứng dụng dùng Aurora MySQL năm node, nhiều ghi, cần sao chép sang Region khác với RPO một giờ và chi phí thấp nhất. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Đổi Aurora thành global database và tạo Aurora ở Region thứ hai."
+          },
+          {
+            "id": "B",
+            "text": "Bật Backtrack và Lambda hằng ngày copy snapshot sang Region backup."
+          },
+          {
+            "id": "C",
+            "text": "Dùng DMS CDC sao chép thay đổi liên tục từ Aurora vào S3 ở Region khác."
+          },
+          {
+            "id": "D",
+            "text": "Tắt automated backups và cấu hình AWS Backup/Aurora backup mỗi giờ tới Region khác."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "cross-Region backup",
+          "meaning": "Bản sao lưu ở Region khác"
+        },
+        {
+          "term": "CDC",
+          "meaning": "Bắt thay đổi liên tục"
+        },
+        {
+          "term": "RPO",
+          "meaning": "Mức dữ liệu có thể mất"
+        }
+      ],
+      "context": "Database ghi nhiều nhưng chỉ cần mất tối đa một giờ.",
+      "requirements": [
+        "Backup liên Region mỗi giờ",
+        "Phục hồi được",
+        "Chi phí thấp hơn global replication"
+      ],
+      "constraints": [
+        "Global Database đắt hơn",
+        "Backtrack cùng Region",
+        "DMS tới S3 chưa là database phục hồi trực tiếp"
+      ],
+      "focusPoints": [
+        "Đối chiếu RPO với tần suất backup.",
+        "Không chọn realtime replication khi RPO một giờ đủ."
+      ],
+      "realWorld": {
+        "scenario": "Doanh nghiệp cần DR database với ngân sách giới hạn.",
+        "challenge": "Dữ liệu phải phục hồi sau thảm họa nhưng không cần secondary hoạt động liên tục.",
+        "principle": "Backup chéo Region theo lịch phù hợp RPO theo giờ.",
+        "takeaway": "Dùng AWS Backup plan hourly và copy vault sang DR Region."
+      }
+    }
   },
   {
     "id": "test-01-32",
@@ -977,7 +2800,65 @@
       "C"
     ],
     "explanation": "Chọn C vì thuộc tính CPU và memory trong launch template cho phép EC2 Auto Scaling chọn nhiều loại instance đáp ứng yêu cầu, giảm lãng phí và không phải cập nhật danh sách loại máy thường xuyên. Chọn một loại cố định hoặc tự lấy giá từ Price List cần bảo trì thủ công; chỉ liệt kê các loại tương tự không tối ưu linh hoạt.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng attribute-based instance selection để giảm overprovisioning lâu dài.",
+      "translation": {
+        "stem": "ASG chỉ có một loại EC2 và CPU/memory đều thấp. Cần giảm chi phí vĩnh viễn, tăng utilization và ít chỉnh sửa về sau. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Liệt kê instance type tương tự và cấu hình nhiều type trong launch template."
+          },
+          {
+            "id": "B",
+            "text": "Chọn một type khớp utilization, thêm rồi bỏ type hiện tại."
+          },
+          {
+            "id": "C",
+            "text": "Đặt yêu cầu CPU/memory trong revision launch template và bỏ type hiện tại."
+          },
+          {
+            "id": "D",
+            "text": "Script lấy type từ Price List Bulk API và tạo revision template."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "attribute-based selection",
+          "meaning": "Chọn instance theo thuộc tính"
+        },
+        {
+          "term": "launch template",
+          "meaning": "Mẫu cấu hình instance cho ASG"
+        },
+        {
+          "term": "utilization",
+          "meaning": "Mức sử dụng tài nguyên"
+        }
+      ],
+      "context": "Workload bị cấp dư và không cần khóa một instance type.",
+      "requirements": [
+        "Khớp CPU/memory",
+        "Tận dụng nhiều type",
+        "Ít chỉnh tay"
+      ],
+      "constraints": [
+        "Type cố định hoặc script giá tăng bảo trì",
+        "Giá không phản ánh resource requirement"
+      ],
+      "focusPoints": [
+        "Dùng vCPU/memory làm ràng buộc.",
+        "Ưu tiên cơ chế native ASG."
+      ],
+      "realWorld": {
+        "scenario": "Đội nền tảng tối ưu fleet EC2 theo thế hệ phần cứng.",
+        "challenge": "Danh sách type thủ công phải cập nhật thường xuyên.",
+        "principle": "Instance requirements cho ASG tự chọn type phù hợp.",
+        "takeaway": "Mô tả nhu cầu tài nguyên thay vì khóa vào tên máy."
+      }
+    }
   },
   {
     "id": "test-01-33",
@@ -1007,7 +2888,65 @@
       "D"
     ],
     "explanation": "Chọn D vì AMI chứa CodeDeploy agent và deployment group gắn với Auto Scaling group sẽ tự nhận các instance mới sau scale hoặc refresh. EventBridge cộng Lambda phải tự duy trì logic đăng ký; tạo AMI bằng CodeBuild chứa code bỏ qua cơ chế triển khai CodeDeploy và làm tăng quy trình.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Tự động hóa CodeDeploy cho instance mới trong Auto Scaling Group.",
+      "translation": {
+        "stem": "ASG liên tục thay đổi; khi deploy code mới, agent phải cài và instance phải vào deployment group. Ứng dụng sắp go-live, cần ít vận hành. Nên làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "EventBridge gọi Lambda khi instance launch để associate với CodeDeploy group."
+          },
+          {
+            "id": "B",
+            "text": "Tạm dừng ASG, deploy, tạo AMI, đổi launch template rồi resume."
+          },
+          {
+            "id": "C",
+            "text": "CodeBuild tạo AMI chứa code, đổi template và chạy instance refresh."
+          },
+          {
+            "id": "D",
+            "text": "AMI có CodeDeploy agent và gắn deployment group với ASG thay vì từng instance."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "CodeDeploy deployment group",
+          "meaning": "Nhóm target cho deployment"
+        },
+        {
+          "term": "instance refresh",
+          "meaning": "Thay dần instance ASG"
+        },
+        {
+          "term": "AMI",
+          "meaning": "Ảnh máy khởi tạo EC2"
+        }
+      ],
+      "context": "Instance mới phải tự nhận agent và deployment.",
+      "requirements": [
+        "Tự động theo ASG",
+        "Code nhất quán",
+        "Ít Lambda/script"
+      ],
+      "constraints": [
+        "Dừng ASG rủi ro",
+        "AMI chứa code bỏ qua deployment lifecycle"
+      ],
+      "focusPoints": [
+        "Tìm tích hợp CodeDeploy–ASG.",
+        "Đặt agent trong AMI nền."
+      ],
+      "realWorld": {
+        "scenario": "Nền tảng web scale out liên tục.",
+        "challenge": "Instance mới phải sẵn sàng với phiên bản hiện hành.",
+        "principle": "Deployment group gắn ASG theo dõi lifecycle tự nhiên.",
+        "takeaway": "Bake agent vào AMI và để CodeDeploy quản lý target."
+      }
+    }
   },
   {
     "id": "test-01-34",
@@ -1047,7 +2986,73 @@
       "C"
     ],
     "explanation": "A tạo SNS topic gửi email, B tạo Task để publish thông tin lỗi, và C bắt States.ALL ở các Task/Map/Parallel rồi chuyển đến Task đó. Chỉ bắt States.Runtime không bao phủ phần lớn lỗi; dùng SES thay SNS không cần thiết khi SNS đã có subscription email.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Cấu hình Step Functions bắt lỗi state và gửi notification.",
+      "translation": {
+        "stem": "Workflow retraining dùng Step Functions/Lambda; một lỗi làm workflow thất bại nhưng đội không biết. Cần thông báo cho mọi dạng lỗi. Chọn ba bước.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tạo SNS topic có subscription Email tới mailing list."
+          },
+          {
+            "id": "B",
+            "text": "Tạo task Email chuyển input arguments tới SNS topic."
+          },
+          {
+            "id": "C",
+            "text": "Thêm Catch States.ALL vào Task, Map và Parallel rồi chuyển tới Email."
+          },
+          {
+            "id": "D",
+            "text": "Thêm địa chỉ vào SES và verify."
+          },
+          {
+            "id": "E",
+            "text": "Tạo task Email chuyển input tới SES."
+          },
+          {
+            "id": "F",
+            "text": "Thêm Catch chỉ States.Runtime vào mọi state."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Step Functions Catch",
+          "meaning": "Nhánh xử lý lỗi state machine"
+        },
+        {
+          "term": "States.ALL",
+          "meaning": "Mẫu bắt lỗi có thể bắt"
+        },
+        {
+          "term": "SNS email",
+          "meaning": "Subscription SNS gửi email"
+        }
+      ],
+      "context": "Workflow nhiều bước cần error path tới notification.",
+      "requirements": [
+        "Email alert",
+        "Bắt lỗi Task/Map/Parallel",
+        "Giữ error input"
+      ],
+      "constraints": [
+        "States.Runtime không bao phủ lỗi thường",
+        "SES không cần khi SNS đã gửi email"
+      ],
+      "focusPoints": [
+        "Đặt Catch ở tất cả state có thể fail.",
+        "Phân biệt States.ALL với runtime error."
+      ],
+      "realWorld": {
+        "scenario": "Job ML chạy đêm thất bại nhưng không ai biết.",
+        "challenge": "Log không đủ nhanh để đội phản ứng.",
+        "principle": "State machine cần đường lỗi rõ ràng tới notification.",
+        "takeaway": "Dùng SNS email và Catch States.ALL."
+      }
+    }
   },
   {
     "id": "test-01-35",
@@ -1077,7 +3082,66 @@
       "B"
     ],
     "explanation": "Chọn B vì primary/core node cần On-Demand để bảo vệ dữ liệu và hoạt động của EMRFS, còn task node có thể dùng Spot trong instance fleet; cluster kết thúc sau khi chạy. D giữ core cluster sau xử lý và A đặt cả node quan trọng trên Spot; tiếp tục toàn On-Demand tốn hơn.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Phân bổ Spot cho task node và giữ primary/core đáng tin cậy.",
+      "translation": {
+        "stem": "EMRFS chạy job quan trọng buổi sáng sáu giờ; thời gian không gấp. Mọi node On-Demand chạy cả ngày; cần giảm compute cost. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Đặt mọi task, primary và core trên Spot, terminate cluster khi xong."
+          },
+          {
+            "id": "B",
+            "text": "Primary/core On-Demand, task node Spot trong instance fleet, terminate cluster khi xong và dùng Compute Savings Plan cho On-Demand."
+          },
+          {
+            "id": "C",
+            "text": "Giữ mọi node On-Demand, terminate sau job và dùng Compute Savings Plan."
+          },
+          {
+            "id": "D",
+            "text": "Primary/core On-Demand, task Spot, chỉ terminate task sau job và dùng Savings Plan."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "EMR primary",
+          "meaning": "Node điều phối cluster"
+        },
+        {
+          "term": "EMR core",
+          "meaning": "Node lưu trữ/xử lý chính"
+        },
+        {
+          "term": "task node",
+          "meaning": "Node xử lý bổ sung, thay thế được"
+        }
+      ],
+      "context": "Job có thể chạy chậm nhưng cluster control và dữ liệu cần ổn định.",
+      "requirements": [
+        "Giảm compute",
+        "Chịu gián đoạn task",
+        "Cluster không chạy ngoài job"
+      ],
+      "constraints": [
+        "Spot primary/core có thể mất cluster",
+        "Giữ task sau job lãng phí",
+        "Toàn On-Demand đắt"
+      ],
+      "focusPoints": [
+        "Phân biệt node bắt buộc và capacity bổ sung.",
+        "Terminate cluster ephemeral sau job."
+      ],
+      "realWorld": {
+        "scenario": "Đội dữ liệu chạy batch EMR mỗi sáng.",
+        "challenge": "Thời gian không quan trọng nhưng sáu giờ On-Demand tốn.",
+        "principle": "Spot phù hợp task retry được; primary/core nên On-Demand.",
+        "takeaway": "Chạy cluster theo job và terminate mọi node sau hoàn tất."
+      }
+    }
   },
   {
     "id": "test-01-36",
@@ -1107,7 +3171,65 @@
       "D"
     ],
     "explanation": "Chọn D vì standard queue dùng standard dead-letter queue để tách thông điệp lỗi sau số lần nhận, cho phép các thông điệp khác tiếp tục được xử lý. Tăng hoặc giảm timeout không cô lập thông điệp độc hại; FIFO DLQ không phù hợp cho standard queue.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng dead-letter queue đúng loại để cô lập message lỗi trong SQS standard.",
+      "translation": {
+        "stem": "Một message lỗi trong SQS standard khiến backend không tiến triển. Visibility timeout 30 giây, processing timeout 10 giây. Cần phân tích message lỗi và tiếp tục xử lý message sau. Nên làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tăng backend timeout lên 30 giây."
+          },
+          {
+            "id": "B",
+            "text": "Giảm visibility timeout để tự xóa message lỗi."
+          },
+          {
+            "id": "C",
+            "text": "Tạo SQS FIFO queue làm DLQ."
+          },
+          {
+            "id": "D",
+            "text": "Tạo SQS standard queue làm DLQ."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "visibility timeout",
+          "meaning": "Thời gian message tạm ẩn sau khi nhận"
+        },
+        {
+          "term": "DLQ",
+          "meaning": "Nơi cô lập message thất bại"
+        },
+        {
+          "term": "SQS standard",
+          "meaning": "Queue throughput cao, không bảo đảm thứ tự tuyệt đối"
+        }
+      ],
+      "context": "Consumer nhận lại poison message thay vì xử lý message khác.",
+      "requirements": [
+        "Cô lập lỗi",
+        "Giữ message phân tích",
+        "Không chặn queue"
+      ],
+      "constraints": [
+        "Timeout không tự xóa an toàn",
+        "DLQ phải tương thích loại queue"
+      ],
+      "focusPoints": [
+        "Dùng redrive policy/max receives cùng DLQ.",
+        "Phân biệt standard và FIFO."
+      ],
+      "realWorld": {
+        "scenario": "Một đơn hàng hỏng làm pipeline đứng.",
+        "challenge": "Cần giữ bằng chứng nhưng không retry vô hạn.",
+        "principle": "DLQ tách poison message sau ngưỡng retry.",
+        "takeaway": "Cấu hình standard DLQ và redrive."
+      }
+    }
   },
   {
     "id": "test-01-37",
@@ -1137,7 +3259,66 @@
       "C"
     ],
     "explanation": "Chọn C vì CORS phải được cấu hình trên API Gateway và áp dụng cho mọi response của API, gồm cả response lỗi/preflight mà trình duyệt kiểm tra. CORS của bucket chỉ áp dụng S3, WAF không tạo header phản hồi, còn chỉ sửa Lambda có thể bỏ sót response do API Gateway tạo.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Đặt CORS ở API Gateway cho mọi response của API.",
+      "translation": {
+        "stem": "Website S3/CloudFront có form gọi API Gateway/Lambda; trình duyệt báo CORS dù CloudFront origin đã có Access-Control-Allow-Origin. Cần làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Thêm www.example.com vào AllowedOrigin của S3 CORS."
+          },
+          {
+            "id": "B",
+            "text": "Bật CORS trong WAF và tạo rule đặt response header."
+          },
+          {
+            "id": "C",
+            "text": "Bật CORS trên API Gateway và bảo đảm mọi response trả header đúng."
+          },
+          {
+            "id": "D",
+            "text": "Bật CORS trên Lambda và chỉ thêm header vào return code."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "CORS",
+          "meaning": "Cho phép request cross-origin"
+        },
+        {
+          "term": "Access-Control-Allow-Origin",
+          "meaning": "Header chỉ định origin được phép"
+        },
+        {
+          "term": "preflight",
+          "meaning": "Request OPTIONS kiểm tra CORS"
+        }
+      ],
+      "context": "Browser gọi API ở origin khác website static.",
+      "requirements": [
+        "Xử lý preflight",
+        "Header cho success/error",
+        "Đúng domain"
+      ],
+      "constraints": [
+        "S3 CORS không áp dụng API",
+        "WAF không tạo response header",
+        "Lambda có thể bỏ sót response API Gateway"
+      ],
+      "focusPoints": [
+        "Xác định resource browser gọi.",
+        "Cấu hình CORS ở lớp tạo response đầy đủ."
+      ],
+      "realWorld": {
+        "scenario": "Frontend S3 gọi backend API khác domain.",
+        "challenge": "Header CloudFront không đảm bảo API response có CORS.",
+        "principle": "CORS phải xuất hiện trên endpoint trả response.",
+        "takeaway": "Bật CORS API Gateway và kiểm tra OPTIONS/lỗi."
+      }
+    }
   },
   {
     "id": "test-01-38",
@@ -1167,7 +3348,65 @@
       "D"
     ],
     "explanation": "Chọn D vì SCP explicit deny ở NonProd chặn thao tác AuthorizeSecurityGroupIngress với nguồn 0.0.0.0/0 trước khi rule được tạo, không cần Lambda dọn dẹp sau đó. Config chỉ phát hiện vi phạm và C dùng allow không tạo rào chắn; EventBridge hiện tại chỉ thông báo. Nguồn có vẻ dùng nhầm tên condition key cho CIDR ingress, nhưng ý định của đáp án D là deny CIDR mở.",
-    "reviewNote": "Nguồn có vẻ dùng aws:SourceIp cho CIDR nguồn của security-group rule; condition key chuẩn có thể khác, nhưng ý định đáp án D là SCP deny 0.0.0.0/0."
+    "reviewNote": "Nguồn có vẻ dùng aws:SourceIp cho CIDR nguồn của security-group rule; condition key chuẩn có thể khác, nhưng ý định đáp án D là SCP deny 0.0.0.0/0.",
+    "learningAid": {
+      "summary": "Dùng SCP explicit deny ngăn security-group ingress mở ở OU.",
+      "translation": {
+        "stem": "Mỗi account có EventBridge báo rule security group 0.0.0.0/0. Với NonProd, security team muốn loại bỏ khả năng tạo rule này với ít vận hành. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "EventBridge gọi Lambda xóa rule rồi publish SNS, triển khai ở NonProd."
+          },
+          {
+            "id": "B",
+            "text": "Thêm Config managed rule vpc-sg-open-only-to-authorized-ports vào NonProd."
+          },
+          {
+            "id": "C",
+            "text": "SCP allow AuthorizeSecurityGroupIngress khi aws:SourceIp không phải 0.0.0.0/0."
+          },
+          {
+            "id": "D",
+            "text": "SCP deny AuthorizeSecurityGroupIngress khi nguồn là 0.0.0.0/0, áp dụng NonProd OU."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "SCP explicit deny",
+          "meaning": "Từ chối API dù IAM cho phép"
+        },
+        {
+          "term": "OU",
+          "meaning": "Đơn vị tổ chức chứa account"
+        },
+        {
+          "term": "ingress",
+          "meaning": "Traffic đi vào tài nguyên"
+        }
+      ],
+      "context": "NonProd cần preventive guardrail mạng.",
+      "requirements": [
+        "Ngăn ngay lúc tạo",
+        "Áp dụng mọi account NonProd",
+        "Ít remediation Lambda"
+      ],
+      "constraints": [
+        "Config/EventBridge phát hiện sau",
+        "Allow không chặn mọi principal"
+      ],
+      "focusPoints": [
+        "Dùng preventive thay detective.",
+        "Gắn SCP ở OU."
+      ],
+      "realWorld": {
+        "scenario": "Đội an ninh chuẩn hóa baseline mạng cho account thử nghiệm.",
+        "challenge": "Xóa sau khi tạo vẫn để cửa sổ phơi nhiễm.",
+        "principle": "SCP deny là preventive control tập trung.",
+        "takeaway": "Chặn request trước khi ingress mở."
+      }
+    }
   },
   {
     "id": "test-01-39",
@@ -1207,7 +3446,75 @@
       "E"
     ],
     "explanation": "A tạo schema PostgreSQL bằng SCT, C dùng VPC peering và security groups cho kết nối riêng, còn E thực hiện full load cộng CDC bằng DMS rồi đổi CNAME. F chỉ CDC nên không có dữ liệu ban đầu; D mở database công khai không an toàn, còn B gán SCT nhiệm vụ tạo DB/initial data không đúng vai trò.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Kết hợp SCT, private connectivity và DMS full-load plus CDC.",
+      "translation": {
+        "stem": "Cần chuyển RDS Oracle sang RDS PostgreSQL ở account khác, không downtime, sao chép dữ liệu cũ và mới rồi đổi Route 53 CNAME. Chọn ba bước.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tạo PostgreSQL đích và dùng SCT chuyển schema."
+          },
+          {
+            "id": "B",
+            "text": "Dùng SCT tạo PostgreSQL với schema và initial data."
+          },
+          {
+            "id": "C",
+            "text": "Peering hai VPC và mở security group database port từ VPC đích."
+          },
+          {
+            "id": "D",
+            "text": "Tạm cho source public và mở security group."
+          },
+          {
+            "id": "E",
+            "text": "DMS chạy full load plus CDC rồi đổi CNAME sang đích."
+          },
+          {
+            "id": "F",
+            "text": "DMS chỉ chạy CDC rồi đổi CNAME."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "SCT",
+          "meaning": "Công cụ chuyển schema giữa engine"
+        },
+        {
+          "term": "full load",
+          "meaning": "Sao chép dữ liệu ban đầu"
+        },
+        {
+          "term": "CDC",
+          "meaning": "Sao chép thay đổi sau initial load"
+        }
+      ],
+      "context": "Database đổi engine/account nhưng endpoint client cần ổn định.",
+      "requirements": [
+        "Schema tương thích",
+        "Kết nối private",
+        "Full load + CDC",
+        "Cutover CNAME"
+      ],
+      "constraints": [
+        "CDC-only thiếu initial data",
+        "Public DB không an toàn",
+        "SCT không thay DMS ongoing replication"
+      ],
+      "focusPoints": [
+        "Tách schema, connectivity và replication.",
+        "Duy trì CDC đến cutover."
+      ],
+      "realWorld": {
+        "scenario": "Doanh nghiệp hiện đại hóa Oracle thành PostgreSQL.",
+        "challenge": "Dữ liệu vẫn phát sinh nên không thể dừng ghi lâu.",
+        "principle": "Full load + CDC đồng bộ trước rồi cutover nhanh.",
+        "takeaway": "Giữ CNAME làm abstraction cho client."
+      }
+    }
   },
   {
     "id": "test-01-40",
@@ -1237,7 +3544,66 @@
       "C"
     ],
     "explanation": "Chọn C vì đặt ACL riêng tư cho toàn bộ đối tượng ngay lập tức, trong khi ứng dụng vẫn tạo presigned URL để tải hợp lệ mà không đổi quy trình. Lambda theo lịch không xử lý tức thời; Trusted Advisor chỉ khuyến nghị, còn chỉ IgnorePublicAcls không chặn mọi dạng public bucket policy.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Khắc phục public S3 object bằng ACL riêng tư nhưng giữ presigned URL.",
+      "translation": {
+        "stem": "Ứng dụng tạo report trong S3 và signed URL khi người dùng truy cập, nhưng object hiện public. Cần sửa ngay mà không đổi workflow.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Lambda định kỳ áp deny policy cho user chưa xác thực."
+          },
+          {
+            "id": "B",
+            "text": "Xem Trusted Advisor bucket permissions và làm theo khuyến nghị."
+          },
+          {
+            "id": "C",
+            "text": "Chạy script đặt private ACL cho mọi object."
+          },
+          {
+            "id": "D",
+            "text": "Bật Block Public Access IgnorePublicAcls cho bucket."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "presigned URL",
+          "meaning": "URL tạm có chữ ký cho private object"
+        },
+        {
+          "term": "ACL",
+          "meaning": "Danh sách kiểm soát truy cập object"
+        },
+        {
+          "term": "Block Public Access",
+          "meaning": "Bộ chặn cấu hình truy cập công khai"
+        }
+      ],
+      "context": "Object phải private với anonymous user nhưng app vẫn cấp signed URL.",
+      "requirements": [
+        "Khắc phục ngay",
+        "Không đổi workflow",
+        "Chặn anonymous download"
+      ],
+      "constraints": [
+        "Lambda định kỳ không tức thời",
+        "Trusted Advisor chỉ khuyến nghị",
+        "IgnorePublicAcls không chặn mọi bucket policy"
+      ],
+      "focusPoints": [
+        "Tìm thay đổi ACL không ảnh hưởng presigned URL.",
+        "Phân biệt public ACL và bucket policy."
+      ],
+      "realWorld": {
+        "scenario": "Đội bảo mật phát hiện report khách hàng tải không xác thực.",
+        "challenge": "Cần đóng lỗ hổng nhưng user hợp lệ vẫn dùng link ký.",
+        "principle": "Private object vẫn tải qua presigned URL.",
+        "takeaway": "Đặt ACL riêng tư cho object hiện hữu và ngăn public tương lai."
+      }
+    }
   },
   {
     "id": "test-01-41",
@@ -1267,7 +3633,67 @@
       "D"
     ],
     "explanation": "Chọn D vì OU tập hợp các account cần cùng chính sách, tag policy chuẩn hóa tag và SCP giới hạn Region được quản lý tập trung. Config ở từng account không ngăn triển khai; Billing không quản lý Region hay enforcement tag, còn gắn trực tiếp root kém linh hoạt.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Tổ chức account bằng OU rồi áp tag policy và SCP theo nhóm.",
+      "translation": {
+        "stem": "AWS Organizations có nhiều account; một số chỉ được triển khai ở Region cho phép, resource phải gắn tag theo chuẩn và quản lý tập trung. Làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tạo Config rule trong từng account để giới hạn Region và áp tag policy."
+          },
+          {
+            "id": "B",
+            "text": "Tắt Region trong Billing console và áp tag policy ở root."
+          },
+          {
+            "id": "C",
+            "text": "Đưa account vào root, áp tag policy và SCP condition giới hạn Region."
+          },
+          {
+            "id": "D",
+            "text": "Đưa account vào OU mới, áp tag policy và SCP condition giới hạn Region."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "OU",
+          "meaning": "Nhóm account nhận cùng guardrail"
+        },
+        {
+          "term": "SCP",
+          "meaning": "Chính sách giới hạn API cho account"
+        },
+        {
+          "term": "tag policy",
+          "meaning": "Chính sách chuẩn hóa tag"
+        }
+      ],
+      "context": "Các account có yêu cầu tuân thủ giống nhau cần quản trị theo nhóm.",
+      "requirements": [
+        "Giới hạn Region",
+        "Chuẩn hóa tag",
+        "Tập trung",
+        "Ít cấu hình lặp"
+      ],
+      "constraints": [
+        "Config chỉ phát hiện",
+        "Root không đủ phân nhóm",
+        "Billing không quản trị guardrail"
+      ],
+      "focusPoints": [
+        "Tạo OU theo policy boundary.",
+        "Kết hợp tag policy và SCP."
+      ],
+      "realWorld": {
+        "scenario": "Tập đoàn tách account theo khu vực pháp lý.",
+        "challenge": "Account không được tự triển khai ngoài Region được phép.",
+        "principle": "OU là đơn vị kế thừa policy phù hợp.",
+        "takeaway": "Đưa account vào OU rồi áp guardrail một lần."
+      }
+    }
   },
   {
     "id": "test-01-42",
@@ -1297,7 +3723,67 @@
       "B"
     ],
     "explanation": "Chọn B vì Aurora Global Database sao chép độ trễ thấp sang secondary và hỗ trợ khôi phục liên vùng với RPO dưới một phút, trong khi Route 53 đã xử lý chuyển traffic. RDS cross-Region replica và standby EC2 thường có RPO/RTO kém hơn hoặc cần nhiều thao tác; Multi-AZ chỉ bảo vệ trong cùng Region.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Chọn Aurora Global Database cho RPO/RTO liên Region rất thấp.",
+      "translation": {
+        "stem": "Web app ở us-east-1 có EC2 MySQL; application servers đã ở us-west-2 và Route 53 health check/failover đã có. Cần RTO dưới 5 phút và RPO dưới 1 phút. Bổ sung gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Di chuyển sang RDS MySQL với cross-Region read replica."
+          },
+          {
+            "id": "B",
+            "text": "Di chuyển sang Aurora Global Database, primary us-east-1 và secondary us-west-2."
+          },
+          {
+            "id": "C",
+            "text": "Di chuyển sang RDS MySQL Multi-AZ."
+          },
+          {
+            "id": "D",
+            "text": "Tạo MySQL standby EC2 ở us-west-2."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Aurora Global Database",
+          "meaning": "Replication Aurora liên Region độ trễ thấp"
+        },
+        {
+          "term": "secondary Region",
+          "meaning": "Region chứa bản sao sẵn sàng"
+        },
+        {
+          "term": "DNS failover",
+          "meaning": "Đổi endpoint khi health check lỗi"
+        }
+      ],
+      "context": "Application tier có DR Region nhưng database cần replication nhanh.",
+      "requirements": [
+        "RPO <1 phút",
+        "RTO <5 phút",
+        "Secondary cross-Region",
+        "Tích hợp DNS failover"
+      ],
+      "constraints": [
+        "Multi-AZ chỉ trong Region",
+        "Standby EC2 tự quản trị",
+        "Read replica thường phục hồi chậm hơn"
+      ],
+      "focusPoints": [
+        "Đánh giá RPO trước khi chọn replication.",
+        "Bảo đảm database secondary promote nhanh."
+      ],
+      "realWorld": {
+        "scenario": "Nền tảng giao dịch cần tiếp tục khi Region chính hỏng.",
+        "challenge": "Application server dự phòng vô ích nếu database stale.",
+        "principle": "Global Database tối ưu replication và failover.",
+        "takeaway": "Đặt secondary sẵn sàng thay vì restore backup."
+      }
+    }
   },
   {
     "id": "test-01-43",
@@ -1327,7 +3813,67 @@
       "C"
     ],
     "explanation": "Chọn C vì S3, AppSync, SQS và Lambda là các dịch vụ quản lý giúp tách web/API/worker, còn SQS DLQ giữ order lỗi để kiểm tra hoặc xử lý lại. ECS, Beanstalk, MQ, Step Functions hoặc EKS trong các đáp án khác thêm chi phí vận hành; long polling không phải cơ chế lưu giữ lỗi thay DLQ.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Thiết kế kiến trúc decoupled serverless với DLQ và chi phí thấp.",
+      "translation": {
+        "stem": "Retail ordering chạy trên EC2 load-balanced cho web, API và business logic. Cần refactor thành kiến trúc tách rời, co giãn, giữ order lỗi và giảm chi phí.",
+        "options": [
+          {
+            "id": "A",
+            "text": "S3 web, API Gateway, SQS, ECS business logic và long polling để giữ lỗi."
+          },
+          {
+            "id": "B",
+            "text": "Elastic Beanstalk, API Gateway, Amazon MQ, Step Functions và Glacier Deep Archive giữ order lỗi."
+          },
+          {
+            "id": "C",
+            "text": "S3 web, AppSync, SQS, Lambda business logic và SQS DLQ."
+          },
+          {
+            "id": "D",
+            "text": "Lightsail, AppSync, SES làm queue, EKS business logic và OpenSearch giữ lỗi."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "decoupling",
+          "meaning": "Tách producer và consumer bằng broker"
+        },
+        {
+          "term": "DLQ",
+          "meaning": "Nơi giữ message không xử lý được"
+        },
+        {
+          "term": "serverless",
+          "meaning": "Dịch vụ managed không quản lý server"
+        }
+      ],
+      "context": "Đơn hàng cần tách frontend/API/processing để burst không sập hệ thống.",
+      "requirements": [
+        "Co giãn",
+        "Chi phí thấp",
+        "Giữ order lỗi",
+        "Ít máy chủ"
+      ],
+      "constraints": [
+        "Long polling không thay DLQ",
+        "SES không phải queue",
+        "EKS/Beanstalk/MQ thêm vận hành"
+      ],
+      "focusPoints": [
+        "Tìm dịch vụ native cho static/API/queue/worker.",
+        "DLQ phải thuộc messaging system."
+      ],
+      "realWorld": {
+        "scenario": "Website bán hàng có burst trong khuyến mại.",
+        "challenge": "Order lỗi phải điều tra mà không chặn order mới.",
+        "principle": "SQS + Lambda + DLQ cung cấp buffer/retry/cô lập lỗi.",
+        "takeaway": "Dùng managed serverless components cho đường chính."
+      }
+    }
   },
   {
     "id": "test-01-44",
@@ -1357,7 +3903,66 @@
       "C"
     ],
     "explanation": "Chọn C vì Control Tower tạo nền tảng đa tài khoản và SCP ở OU có thể deny mọi API ngoài các Region cho phép. IAM policy chỉ giới hạn theo principal và dễ bị bỏ sót; IAM user hay Security Hub không phải cơ chế tổ chức để chặn triển khai.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng Control Tower và SCP theo OU để chặn Region ngoài danh sách.",
+      "translation": {
+        "stem": "Công ty mở rộng tới hàng trăm account và Region, cần deny mọi operation ngoài Region chỉ định. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "IAM role/policy allow có điều kiện chỉ approved Region cho từng account."
+          },
+          {
+            "id": "B",
+            "text": "IAM users và policy block Region ngoài danh sách cho từng user."
+          },
+          {
+            "id": "C",
+            "text": "Dựng Control Tower landing zone, tạo OU và gắn SCP deny service ngoài approved Region."
+          },
+          {
+            "id": "D",
+            "text": "Bật Security Hub và tạo control chỉ định Region."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Control Tower",
+          "meaning": "Dịch vụ governance landing zone đa account"
+        },
+        {
+          "term": "landing zone",
+          "meaning": "Nền tảng account/network/policy chuẩn"
+        },
+        {
+          "term": "SCP deny",
+          "meaning": "Guardrail tổ chức chặn thao tác"
+        }
+      ],
+      "context": "Hàng trăm account cần cùng Region guardrail không phụ thuộc user.",
+      "requirements": [
+        "Centralized",
+        "Account mới kế thừa",
+        "Deny mọi principal",
+        "Ít bảo trì"
+      ],
+      "constraints": [
+        "IAM policy dễ thiếu role",
+        "Security Hub phát hiện chứ không chặn"
+      ],
+      "focusPoints": [
+        "Chọn control ở Organizations/OU.",
+        "Dùng explicit deny thay allow rời rạc."
+      ],
+      "realWorld": {
+        "scenario": "Tập đoàn tuân thủ data residency.",
+        "challenge": "Account mới cũng phải tự động bị giới hạn.",
+        "principle": "Control Tower/SCP cung cấp governance kế thừa.",
+        "takeaway": "Đặt Region deny guardrail tại OU."
+      }
+    }
   },
   {
     "id": "test-01-45",
@@ -1392,7 +3997,69 @@
       "C"
     ],
     "explanation": "A kiểm tra NACL hai chiều giữa subnet NLB và subnet instance, còn C cho security group của instance nhận traffic từ subnet NLB. Security group của client/NLB không phải chỗ duy nhất cần mở cho target; kiểm tra interface endpoint subnet như B bỏ qua đường truyền thực tế đến target.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Xử lý đường mạng PrivateLink bằng NACL và security group target.",
+      "translation": {
+        "stem": "PrivateLink cung cấp endpoint tới logging service trên EC2 sau NLB. Client không gửi được log; service và NLB ở subnet khác. Chọn hai kiểm tra.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Kiểm tra NACL subnet service và NLB cho phép hai chiều giữa hai subnet."
+          },
+          {
+            "id": "B",
+            "text": "Kiểm tra NACL service và interface endpoint subnet cho phép hai chiều."
+          },
+          {
+            "id": "C",
+            "text": "Kiểm tra SG EC2 logging cho phép ingress từ NLB subnets."
+          },
+          {
+            "id": "D",
+            "text": "Kiểm tra SG EC2 cho phép ingress trực tiếp từ clients."
+          },
+          {
+            "id": "E",
+            "text": "Kiểm tra SG NLB cho phép ingress từ interface endpoint subnets."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "PrivateLink",
+          "meaning": "Kết nối service qua endpoint network interface"
+        },
+        {
+          "term": "NLB",
+          "meaning": "Network Load Balancer"
+        },
+        {
+          "term": "NACL",
+          "meaning": "Firewall stateless ở subnet"
+        }
+      ],
+      "context": "Consumer endpoint kết nối provider NLB rồi NLB tới EC2 target.",
+      "requirements": [
+        "NACL hai chiều",
+        "SG target nhận traffic NLB",
+        "Không mở trực tiếp client"
+      ],
+      "constraints": [
+        "NACL endpoint không phải path provider cần trong lựa chọn",
+        "SG EC2 không nhận trực tiếp client"
+      ],
+      "focusPoints": [
+        "Vẽ path endpoint → NLB → target.",
+        "Nhớ NACL stateless cần chiều vào/ra."
+      ],
+      "realWorld": {
+        "scenario": "Logging service private được nhiều account dùng.",
+        "challenge": "Endpoint tồn tại nhưng ACL/SG giữa NLB và target chặn.",
+        "principle": "PrivateLink không bỏ qua kiểm soát subnet/target.",
+        "takeaway": "Mở đúng path NLB-to-target, không mở EC2 cho client."
+      }
+    }
   },
   {
     "id": "test-01-46",
@@ -1432,7 +4099,75 @@
       "C"
     ],
     "explanation": "A triển khai các Regional API và dùng Route 53 multivalue để phân phối active-active, B tạo các KMS multi-Region replica key, và C nhân bản secret sang từng Region với khóa phù hợp. E phải sao chép thủ công và dễ lệch giá trị; D không thể chuyển khóa hiện có thành multi-Region, còn F nêu một tùy chọn multi-Region API không phải cơ chế chuẩn thay cho Regional API và DNS.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Thiết kế active-active đa Region cho API, secret và KMS.",
+      "translation": {
+        "stem": "API Gateway Regional gọi Lambda, đọc vendor API, dùng DynamoDB global table và secret Secrets Manager mã hóa bằng customer KMS key. Cần active-active nhiều Region với ít vận hành. Chọn ba thay đổi.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Triển khai API nhiều Region, custom domain Route 53 multivalue tới từng Regional endpoint."
+          },
+          {
+            "id": "B",
+            "text": "Tạo KMS multi-Region customer key và replica key ở mỗi Region."
+          },
+          {
+            "id": "C",
+            "text": "Replicate secret sang Region khác và chọn KMS key phù hợp."
+          },
+          {
+            "id": "D",
+            "text": "Tạo AWS managed key mới, chuyển key cũ thành multi-Region và dùng ở Region khác."
+          },
+          {
+            "id": "E",
+            "text": "Tạo secret mới thủ công từng Region và copy value."
+          },
+          {
+            "id": "F",
+            "text": "Lặp deploy Lambda và bật tùy chọn multi-Region cho API hiện tại."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "active-active",
+          "meaning": "Nhiều Region đồng thời nhận traffic"
+        },
+        {
+          "term": "multi-Region KMS key",
+          "meaning": "Khóa tương ứng giữa các Region"
+        },
+        {
+          "term": "secret replication",
+          "meaning": "Nhân bản secret giữa Region"
+        }
+      ],
+      "context": "DynamoDB đã đa Region nhưng API/Lambda/secret/key còn đơn Region.",
+      "requirements": [
+        "Regional endpoints",
+        "Định tuyến traffic",
+        "Secret/key từng Region",
+        "Ít thủ công"
+      ],
+      "constraints": [
+        "Không convert key cũ",
+        "Copy secret dễ lệch",
+        "Regional API cần DNS/pipeline"
+      ],
+      "focusPoints": [
+        "Thiết kế mọi dependency của Lambda.",
+        "Dùng replication native cho secret/KMS."
+      ],
+      "realWorld": {
+        "scenario": "SaaS API cần chịu lỗi Region mà không có vùng nóng thủ công.",
+        "challenge": "Lambda không đọc/giải mã được nếu dependency chỉ ở Region gốc.",
+        "principle": "Active-active cần đồng bộ endpoint, compute, secret và key.",
+        "takeaway": "Nhân bản secret/KMS và triển khai Regional API tự động."
+      }
+    }
   },
   {
     "id": "test-01-47",
@@ -1462,7 +4197,66 @@
       "B"
     ],
     "explanation": "Chọn B vì một VPC duy nhất có transit gateway attachment và route cấu hình một lần, còn CloudFormation tạo/xóa từng môi trường tự động mà vẫn kết nối được on-premises. Tạo VPC/attachment cho mỗi môi trường hoặc mỗi account làm tăng chi phí, thời gian và giới hạn tài nguyên; EKS là phức tạp không cần thiết cho một EC2 instance.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng một VPC và CloudFormation tạo/xóa môi trường test tự động.",
+      "translation": {
+        "stem": "Mỗi test environment là EC2 trong ASG, cần liên lạc server tại chỗ. Transit Gateway đã có VPN attachment. Cần tạo/xóa môi trường không thủ công, ít vận hành nhất.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Template chứa TGW attachment/routing, StackSets tạo stack và VPC mới cho từng environment."
+          },
+          {
+            "id": "B",
+            "text": "Một VPC test có TGW attachment/routing; CloudFormation triển khai mọi environment trong VPC."
+          },
+          {
+            "id": "C",
+            "text": "Tạo OU test, mỗi environment một account/VPC/attachment qua StackSets."
+          },
+          {
+            "id": "D",
+            "text": "Đổi EC2 thành Docker, dựng EKS trong VPC mới và dùng Kubernetes quản lý lifecycle."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "CloudFormation",
+          "meaning": "IaC quản lý resource"
+        },
+        {
+          "term": "Transit Gateway",
+          "meaning": "Hub kết nối nhiều VPC/mạng"
+        },
+        {
+          "term": "StackSet",
+          "meaning": "Triển khai stack nhiều account/Region"
+        }
+      ],
+      "context": "Môi trường ngắn hạn cần route tới on-premises qua TGW đã nối VPN.",
+      "requirements": [
+        "Provision/delete tự động",
+        "Reuse attachment",
+        "Kết nối luôn sẵn",
+        "Ít chi phí"
+      ],
+      "constraints": [
+        "Mỗi VPC/account thêm attachment và quota",
+        "EKS quá phức tạp cho một EC2"
+      ],
+      "focusPoints": [
+        "Tách shared network khỏi ephemeral workload.",
+        "Dùng một VPC nếu isolation không bắt buộc."
+      ],
+      "realWorld": {
+        "scenario": "CI tạo environment theo pull request rồi xóa.",
+        "challenge": "Dựng network attachment cho từng PR chậm và tốn.",
+        "principle": "Shared VPC với IaC giảm thời gian và connectivity duplication.",
+        "takeaway": "Dựng attachment một lần, CloudFormation quản lý workload."
+      }
+    }
   },
   {
     "id": "test-01-48",
@@ -1492,7 +4286,65 @@
       "C"
     ],
     "explanation": "Chọn C vì read replica liên vùng cung cấp dữ liệu cập nhật cho phần lớn traffic đọc, còn latency-based routing đưa người dùng đến API Region gần nhất. DMS full load không duy trì thay đổi; geolocation định tuyến theo vị trí chứ không đo độ trễ, và read replica là phù hợp hơn cho 90% đọc.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng read replica liên Region và latency routing cho traffic đọc.",
+      "translation": {
+        "stem": "Ứng dụng báo cáo ở Mỹ dùng API Gateway/Lambda đọc RDS MySQL; sắp mở châu Âu, hơn 90% database traffic là đọc và API Region mới đã có. Cần giảm latency tải report.",
+        "options": [
+          {
+            "id": "A",
+            "text": "DMS full load sang database mới và Route 53 latency routing tới API."
+          },
+          {
+            "id": "B",
+            "text": "DMS full load plus CDC và Route 53 geolocation routing."
+          },
+          {
+            "id": "C",
+            "text": "RDS cross-Region read replica và latency-based routing tới API."
+          },
+          {
+            "id": "D",
+            "text": "Read replica và geolocation routing tới API."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "read replica",
+          "meaning": "Bản sao phục vụ đọc"
+        },
+        {
+          "term": "latency routing",
+          "meaning": "Định tuyến theo độ trễ"
+        },
+        {
+          "term": "CDC",
+          "meaning": "Sao chép thay đổi liên tục"
+        }
+      ],
+      "context": "API/database châu Âu đã có và phần lớn traffic chỉ đọc.",
+      "requirements": [
+        "Dữ liệu gần user",
+        "Cập nhật liên tục",
+        "Routing theo latency"
+      ],
+      "constraints": [
+        "Full load không giữ thay đổi",
+        "Geolocation không đo latency thực tế"
+      ],
+      "focusPoints": [
+        "Ghép read-heavy với read replica.",
+        "Chọn routing policy theo latency."
+      ],
+      "realWorld": {
+        "scenario": "Công ty Mỹ mở dashboard báo cáo cho khách châu Âu.",
+        "challenge": "Đọc database xuyên đại dương làm tải chậm.",
+        "principle": "Replica giảm khoảng cách dữ liệu; latency DNS chọn API gần.",
+        "takeaway": "Tách read path theo Region và giữ write source rõ ràng."
+      }
+    }
   },
   {
     "id": "test-01-49",
@@ -1527,7 +4379,71 @@
       "D"
     ],
     "explanation": "A cấp trước pool ENI có license tương ứng và bootstrap gắn ENI/ tải license khi instance khởi động, đáp ứng MAC cố định mà không chờ vendor 12 giờ. D lấy IP database từ Parameter Store để cấu hình động; AMI dùng chung license hoặc IP tĩnh không phù hợp, còn yêu cầu license mỗi lần khởi động gây downtime.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Giữ license gắn MAC bằng pool ENI và cấu hình IP động bằng Parameter Store.",
+      "translation": {
+        "stem": "Ứng dụng legacy cần license gắn MAC network adapter, vendor mất 12 giờ cấp lại; config dùng IP database cố định. Cần HA trên AWS. Chọn hai bước.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Pool ENI, xin license tương ứng lưu S3, bootstrap tải license và attach ENI tương ứng."
+          },
+          {
+            "id": "B",
+            "text": "Pool ENI, lưu license trên EC2, tạo AMI dùng cho mọi instance."
+          },
+          {
+            "id": "C",
+            "text": "Bootstrap yêu cầu license mới từ vendor rồi áp vào EC2."
+          },
+          {
+            "id": "D",
+            "text": "Bootstrap đọc IP database từ Parameter Store và chèn vào config."
+          },
+          {
+            "id": "E",
+            "text": "Nhúng IP database vào config và tạo AMI dùng cho mọi EC2."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "ENI",
+          "meaning": "Elastic Network Interface có MAC"
+        },
+        {
+          "term": "bootstrap script",
+          "meaning": "Script khi instance khởi tạo"
+        },
+        {
+          "term": "Parameter Store",
+          "meaning": "Kho parameter managed"
+        }
+      ],
+      "context": "Instance có thể thay thế nhưng phần mềm khóa license theo MAC và không hỗ trợ hostname.",
+      "requirements": [
+        "Khởi động nhanh",
+        "License pre-provisioned",
+        "Config IP đúng",
+        "HA"
+      ],
+      "constraints": [
+        "Xin license lúc boot mất 12 giờ",
+        "AMI dùng chung không đảm bảo MAC",
+        "IP cứng khó thay đổi"
+      ],
+      "focusPoints": [
+        "Chuẩn bị license trước.",
+        "Đưa config môi trường ra khỏi AMI."
+      ],
+      "realWorld": {
+        "scenario": "Ứng dụng thương mại cũ chạy trong ASG.",
+        "challenge": "Instance chết phải thay nhanh dù vendor cấp license chậm.",
+        "principle": "Pool ENI biến MAC/license thành tài nguyên dự phòng.",
+        "takeaway": "Chuẩn bị license và bootstrap ghép đúng ENI."
+      }
+    }
   },
   {
     "id": "test-01-50",
@@ -1557,7 +4473,65 @@
       "C"
     ],
     "explanation": "Chọn C vì bốn r6g.4xlarge tương đương tổng CPU/memory với một r6g.16xlarge, nên ba instance ban đầu phản ánh mức tiêu thụ một phần tư và có thể scale tới 12. m6g có tỷ lệ memory khác, còn r6g.8xlarge chỉ cho tối đa sáu máy và không bám sát kích thước đã đo.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Rightsize theo metric và giữ họ instance memory-optimized.",
+      "translation": {
+        "stem": "Game dùng 12 r6g.16xlarge nhưng CPU/memory chỉ khoảng một phần tư; tải biến động và cần ASG scale theo CPU/memory. Cấu hình tiết kiệm nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "c6g.4xlarge, min/desired 3, max 12."
+          },
+          {
+            "id": "B",
+            "text": "m6g.4xlarge, min/desired 3, max 12."
+          },
+          {
+            "id": "C",
+            "text": "r6g.4xlarge, min/desired 3, max 12."
+          },
+          {
+            "id": "D",
+            "text": "r6g.8xlarge, min/desired 2, max 6."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "r6g",
+          "meaning": "Họ instance memory optimized"
+        },
+        {
+          "term": "m6g",
+          "meaning": "Họ instance general purpose"
+        },
+        {
+          "term": "ASG capacity",
+          "meaning": "Min/desired/max instance"
+        }
+      ],
+      "context": "Workload bị cấp dư nhưng vẫn có đặc tính memory-optimized.",
+      "requirements": [
+        "Giảm kích thước",
+        "Giữ tỷ lệ tài nguyên",
+        "Scale 3–12"
+      ],
+      "constraints": [
+        "Họ compute/general có thể thiếu memory",
+        "r6g.8xlarge giới hạn scale và không khớp"
+      ],
+      "focusPoints": [
+        "Tính tổng tài nguyên sau rightsizing.",
+        "Không bỏ qua bottleneck memory."
+      ],
+      "realWorld": {
+        "scenario": "Nhà phát hành game giảm tải sau launch.",
+        "challenge": "12 máy lớn cố định lãng phí khi người chơi giảm.",
+        "principle": "Rightsizing phải giữ loại tài nguyên chi phối.",
+        "takeaway": "Chọn r6g.4xlarge để chia nhỏ capacity tương đương."
+      }
+    }
   },
   {
     "id": "test-01-51",
@@ -1587,7 +4561,66 @@
       "C"
     ],
     "explanation": "Chọn C vì Auto Scaling cho phép mỗi Region tăng đủ sức tải, Route 53 latency routing chọn Region gần nhất, và DynamoDB global table cung cấp dữ liệu đa Region. Spot Fleet có rủi ro gián đoạn và RDS read replica không hỗ trợ trạng thái ghi toàn cầu; tự dựng DNS/replication tăng vận hành.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Kết hợp Auto Scaling, latency routing và DynamoDB global tables cho game toàn cầu.",
+      "translation": {
+        "stem": "Game chạy EC2 ở ba Region; leaderboard, inventory và event status phải dùng chung; mỗi Region có thể gánh toàn bộ tải; user tự đến Region ít latency. Giải pháp ít vận hành nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Spot Fleet/NLB/Global Accelerator, Route 53 latency tới Global Accelerator, RDS MySQL mỗi Region với read replica."
+          },
+          {
+            "id": "B",
+            "text": "ASG/NLB, Route 53 geoproximity, MySQL trên EC2 mỗi Region và tự replication."
+          },
+          {
+            "id": "C",
+            "text": "ASG/NLB mỗi Region, Route 53 latency routing và DynamoDB global table."
+          },
+          {
+            "id": "D",
+            "text": "EC2 Global View, DNS server tự viết mỗi Region và Aurora global database."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "DynamoDB global table",
+          "meaning": "Bảng active-active đa Region"
+        },
+        {
+          "term": "latency routing",
+          "meaning": "Chọn endpoint theo độ trễ"
+        },
+        {
+          "term": "Auto Scaling Group",
+          "meaning": "Fleet EC2 tự co giãn"
+        }
+      ],
+      "context": "Game state phải đọc/ghi từ mọi Region và compute scale theo tải.",
+      "requirements": [
+        "Active-active data",
+        "Scale mỗi Region",
+        "Latency thấp",
+        "Ít tự vận hành"
+      ],
+      "constraints": [
+        "RDS read replica không xử lý ghi đa Region",
+        "DNS tự viết và EC2 DB tăng vận hành"
+      ],
+      "focusPoints": [
+        "Tìm datastore multi-Region native.",
+        "Phân biệt latency routing và geoproximity."
+      ],
+      "realWorld": {
+        "scenario": "Game online ra mắt đồng thời toàn cầu.",
+        "challenge": "Người chơi phải thấy state dù được định tuyến Region nào.",
+        "principle": "Global tables và managed routing tránh tự xây replication.",
+        "takeaway": "Kết hợp ASG, NLB, latency DNS và global table."
+      }
+    }
   },
   {
     "id": "test-01-52",
@@ -1617,7 +4650,66 @@
       "D"
     ],
     "explanation": "Chọn D vì file gateway cung cấp giao thức NFS cho hệ thống hiện hữu và S3 Lifecycle chuyển dữ liệu sang Glacier Deep Archive sau năm ngày, phù hợp việc chờ vài ngày khi khôi phục. Standard-IA không tối ưu lưu trữ dài hạn; volume/tape gateway không cung cấp NFS trực tiếp như yêu cầu.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng File Gateway NFS với lifecycle sang Glacier Deep Archive.",
+      "translation": {
+        "stem": "Công ty muốn backup file storage NFS tại chỗ lên S3, vẫn hỗ trợ NFS. File sau năm ngày được archive; DR có thể chờ vài ngày. Giải pháp rẻ nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "File Gateway tới S3 và lifecycle sang Standard-IA sau 5 ngày."
+          },
+          {
+            "id": "B",
+            "text": "Volume Gateway tới S3 và lifecycle sang Glacier Deep Archive sau 5 ngày."
+          },
+          {
+            "id": "C",
+            "text": "Tape Gateway tới S3 và lifecycle sang Standard-IA sau 5 ngày."
+          },
+          {
+            "id": "D",
+            "text": "File Gateway tới S3, dùng NFS và lifecycle sang Glacier Deep Archive sau 5 ngày."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "File Gateway",
+          "meaning": "Gateway file NFS/SMB đưa dữ liệu S3"
+        },
+        {
+          "term": "Glacier Deep Archive",
+          "meaning": "Storage archive rẻ, khôi phục lâu"
+        },
+        {
+          "term": "S3 Lifecycle",
+          "meaning": "Tự chuyển storage class theo tuổi"
+        }
+      ],
+      "context": "Nguồn NFS và dữ liệu backup ít truy cập sau ngày thứ năm.",
+      "requirements": [
+        "NFS",
+        "Backup S3",
+        "Archive rẻ",
+        "Chấp nhận retrieval lâu"
+      ],
+      "constraints": [
+        "Standard-IA đắt hơn archive dài hạn",
+        "Volume/Tape không cung cấp NFS phù hợp"
+      ],
+      "focusPoints": [
+        "Ghép protocol với Storage Gateway.",
+        "Chọn class theo retrieval requirement."
+      ],
+      "realWorld": {
+        "scenario": "Doanh nghiệp lưu backup file cho DR dài hạn.",
+        "challenge": "Chi phí quan trọng hơn tốc độ restore.",
+        "principle": "File Gateway giữ interface NFS, Deep Archive tối ưu retention.",
+        "takeaway": "Dùng lifecycle chuyển tự động sau giai đoạn nóng."
+      }
+    }
   },
   {
     "id": "test-01-53",
@@ -1657,7 +4749,73 @@
       "E"
     ],
     "explanation": "A bảo đảm SCP của Account A không chặn STS, C cấp quyền sts:AssumeRole cho user nguồn, và E cho phép principal đó trong trust policy của role đích. Policy của user ở Account B không cấp quyền cho user A, resource policy thông thường không thay thế trust policy, và session policy không phải bước bắt buộc.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Nắm đủ lớp quyền khi IAM user assume role cross-account.",
+      "translation": {
+        "stem": "Organization có SCP, resource/identity/trust/session policies. Cần cho IAM user Account A assume role Account B. Chọn ba bước.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Cấu hình SCP Account A cho phép action."
+          },
+          {
+            "id": "B",
+            "text": "Cấu hình resource-based policy cho phép action."
+          },
+          {
+            "id": "C",
+            "text": "Identity policy trên user Account A cho phép action."
+          },
+          {
+            "id": "D",
+            "text": "Identity policy trên user Account B cho phép action."
+          },
+          {
+            "id": "E",
+            "text": "Trust policy role đích Account B cho phép action."
+          },
+          {
+            "id": "F",
+            "text": "Session policy cho phép action và truyền qua GetSessionToken."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "AssumeRole",
+          "meaning": "STS đổi identity sang role"
+        },
+        {
+          "term": "trust policy",
+          "meaning": "Xác định ai được assume role"
+        },
+        {
+          "term": "identity policy",
+          "meaning": "Quyền gắn với user/role"
+        }
+      ],
+      "context": "User nguồn account A cần nhận role trong account B.",
+      "requirements": [
+        "SCP không chặn",
+        "User có sts:AssumeRole",
+        "Trust principal đúng"
+      ],
+      "constraints": [
+        "User policy account B không cấp quyền cho A",
+        "Session/resource policy không thay trust cơ bản"
+      ],
+      "focusPoints": [
+        "Kiểm tra caller và target role.",
+        "Nhớ SCP là giới hạn tối đa."
+      ],
+      "realWorld": {
+        "scenario": "Đội vận hành trung tâm assume role vào workload accounts.",
+        "challenge": "Thiếu một lớp policy gây AccessDenied.",
+        "principle": "Cross-account assume role cần allow ở identity và trust.",
+        "takeaway": "Cấp quyền nguồn, trust đích và bảo đảm SCP không deny."
+      }
+    }
   },
   {
     "id": "test-01-54",
@@ -1687,7 +4845,67 @@
       "A"
     ],
     "explanation": "Chọn A vì AWS Backup hỗ trợ quản lý liên tài khoản, backup plan theo lịch/retention bằng tag và dashboard tập trung theo dõi tình trạng. RDS không có cross-account management như mô tả; CloudFormation/Lambda tự xây dựng nhiều thành phần, còn DLM không quản lý snapshot RDS.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng AWS Backup quản lý lịch, retention và trạng thái RDS tập trung.",
+      "translation": {
+        "stem": "Công ty cần snapshot RDS mỗi 6 giờ, giữ 30 ngày, quản lý nhiều account bằng Organizations và có consolidated health view. Giải pháp ít vận hành nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Bật cross-account management AWS Backup, tạo plan theo lịch/retention, gắn tag và theo dõi bằng AWS Backup."
+          },
+          {
+            "id": "B",
+            "text": "Bật cross-account management RDS và tạo snapshot global policy."
+          },
+          {
+            "id": "C",
+            "text": "Dùng StackSets backup plan và Lambda/EventBridge tự monitor."
+          },
+          {
+            "id": "D",
+            "text": "Cấu hình Backup mỗi account, dùng DLM lifecycle và monitor từng account."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "backup plan",
+          "meaning": "Lịch, vault và retention AWS Backup"
+        },
+        {
+          "term": "cross-account management",
+          "meaning": "Quản lý backup nhiều account"
+        },
+        {
+          "term": "recovery point",
+          "meaning": "Điểm có thể phục hồi"
+        }
+      ],
+      "context": "RDS snapshot cần lịch dày và quan sát tập trung.",
+      "requirements": [
+        "Mỗi 6 giờ",
+        "Giữ 30 ngày",
+        "Theo tag",
+        "Health view tập trung"
+      ],
+      "constraints": [
+        "DLM không quản lý RDS",
+        "Tự dựng Lambda nhiều thành phần",
+        "Monitor từng account không consolidated"
+      ],
+      "focusPoints": [
+        "Dùng AWS Backup cho database governance.",
+        "Gán resource bằng tag."
+      ],
+      "realWorld": {
+        "scenario": "Đội platform quản lý backup cho hàng trăm database.",
+        "challenge": "Không muốn duy trì scheduler/dashboard riêng từng account.",
+        "principle": "AWS Backup có policy, governance và monitoring tích hợp.",
+        "takeaway": "Tập trung lịch/retention bằng backup plan."
+      }
+    }
   },
   {
     "id": "test-01-55",
@@ -1717,7 +4935,67 @@
       "A"
     ],
     "explanation": "Chọn A vì ECR private repository policy dùng aws:PrincipalOrgID để cho mọi account trong organization truy cập mà không mở internet, đồng thời lifecycle rule giữ toàn bộ tagged image và chỉ giữ năm untagged gần nhất. Public repository làm lộ image; Lambda/EventBridge tự xóa làm tăng vận hành và dễ sai phạm vi.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng ECR policy theo organization và lifecycle cho untagged image.",
+      "translation": {
+        "stem": "Organization có hàng trăm account đẩy Docker image thường xuyên. Chỉ account trong organization được truy cập; giữ mọi tagged image nhưng chỉ năm untagged mới nhất. Giải pháp ít vận hành?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Private ECR policy cho phép khi aws:PrincipalOrgID đúng và lifecycle xóa untagged vượt năm."
+          },
+          {
+            "id": "B",
+            "text": "Public ECR, role assume nếu PrincipalOrgID đúng và lifecycle xóa untagged."
+          },
+          {
+            "id": "C",
+            "text": "Private ECR policy theo account IDs và Lambda hằng ngày xóa untagged."
+          },
+          {
+            "id": "D",
+            "text": "Public ECR với VPC endpoint policy và Lambda xóa untagged."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "ECR repository policy",
+          "meaning": "Policy truy cập container registry"
+        },
+        {
+          "term": "aws:PrincipalOrgID",
+          "meaning": "Điều kiện principal thuộc organization"
+        },
+        {
+          "term": "lifecycle rule",
+          "meaning": "Tự dọn image theo tag/count"
+        }
+      ],
+      "context": "Nhiều account build/pull image từ registry trung tâm.",
+      "requirements": [
+        "Private access",
+        "Giữ tagged",
+        "Giữ 5 untagged",
+        "Không Lambda"
+      ],
+      "constraints": [
+        "Public repository lộ image",
+        "Account IDs phải bảo trì",
+        "Lambda cleanup tăng vận hành"
+      ],
+      "focusPoints": [
+        "Dùng PrincipalOrgID thay danh sách account.",
+        "Dùng lifecycle native theo count."
+      ],
+      "realWorld": {
+        "scenario": "Các account CI/CD chia sẻ image private.",
+        "challenge": "Account thay đổi và untagged image tăng nhanh.",
+        "principle": "ECR policy/lifecycle native là control declarative.",
+        "takeaway": "Private repository + organization condition + lifecycle count."
+      }
+    }
   },
   {
     "id": "test-01-56",
@@ -1747,7 +5025,65 @@
       "B"
     ],
     "explanation": "Chọn B vì private hosted zone phải gắn với VPC, cả enableDnsSupport và enableDnsHostnames phải bật, và DHCP dùng AmazonProvidedDNS để Route 53 Resolver xử lý private lẫn public hostname. Trỏ DHCP tới 10.24.34.2 không phải địa chỉ resolver chuẩn; tắt DNS hostnames/support sẽ phá yêu cầu.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Cấu hình private hosted zone và AmazonProvidedDNS để phân giải đúng.",
+      "translation": {
+        "stem": "VPC 10.24.34.0/24 dùng Route 53 Resolver; query phải dùng private hosted zones và instance có public IP phải nhận public hostname. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Private zone, bật DNS support/hostnames và DHCP DNS server 10.24.34.2."
+          },
+          {
+            "id": "B",
+            "text": "Private zone gắn VPC, bật DNS support/hostnames và DHCP dùng AmazonProvidedDNS."
+          },
+          {
+            "id": "C",
+            "text": "Tắt DNS support, bật hostnames và DHCP dùng 10.24.34.2."
+          },
+          {
+            "id": "D",
+            "text": "Private zone gắn VPC, bật DNS support nhưng tắt hostnames, DHCP dùng AmazonProvidedDNS."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "private hosted zone",
+          "meaning": "Zone DNS chỉ phân giải trong VPC"
+        },
+        {
+          "term": "enableDnsSupport",
+          "meaning": "Cho phép DNS resolution"
+        },
+        {
+          "term": "enableDnsHostnames",
+          "meaning": "Cho instance hostname DNS công khai"
+        }
+      ],
+      "context": "VPC cần tên nội bộ và public hostname cho instance public IP.",
+      "requirements": [
+        "Associate zone",
+        "Bật hai DNS attributes",
+        "Dùng resolver mặc định AWS"
+      ],
+      "constraints": [
+        "Không hard-code resolver",
+        "Tắt hostnames làm mất public hostname"
+      ],
+      "focusPoints": [
+        "Bật đồng thời hai VPC DNS attributes.",
+        "Dùng AmazonProvidedDNS."
+      ],
+      "realWorld": {
+        "scenario": "Đội mạng chuẩn hóa DNS cho các VPC.",
+        "challenge": "Private resolution và public hostname phụ thuộc đúng attributes.",
+        "principle": "Resolver/AmazonProvidedDNS tích hợp cả hai nhu cầu.",
+        "takeaway": "Associate private zone và giữ DNS support/hostnames bật."
+      }
+    }
   },
   {
     "id": "test-01-57",
@@ -1777,7 +5113,65 @@
       "B"
     ],
     "explanation": "Chọn B vì CloudFront field-level encryption dùng public RSA key để mã hóa trường nhạy cảm, chỉ microservice giữ private key mới giải mã được. KMS symmetric key không được CloudFront field-level encryption dùng theo cách này; Lambda@Edge với private key hoặc KMS tạo thêm rủi ro và không phù hợp mô hình mã hóa trường.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng CloudFront field-level encryption với RSA key chỉ service đích giữ private key.",
+      "translation": {
+        "stem": "Ứng dụng survey microservices qua CloudFront/ALB/ECS có dữ liệu nhạy cảm; chỉ microservice xử lý dữ liệu được giải mã. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "KMS symmetric key, field-level encryption profile/config và gắn vào cache behavior."
+          },
+          {
+            "id": "B",
+            "text": "RSA key pair riêng, upload public key lên CloudFront, tạo field-level encryption profile/config và gắn cache behavior."
+          },
+          {
+            "id": "C",
+            "text": "KMS key và Lambda@Edge dùng key mã hóa dữ liệu."
+          },
+          {
+            "id": "D",
+            "text": "RSA key pair và Lambda@Edge dùng private key mã hóa dữ liệu."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "field-level encryption",
+          "meaning": "Mã hóa riêng trường nhạy cảm"
+        },
+        {
+          "term": "RSA public key",
+          "meaning": "Khóa công khai dùng mã hóa"
+        },
+        {
+          "term": "private key",
+          "meaning": "Khóa bí mật chỉ service đích giữ"
+        }
+      ],
+      "context": "Sensitive form data đi qua edge nhưng chỉ backend chuyên trách đọc plaintext.",
+      "requirements": [
+        "Mã hóa tại edge",
+        "Chỉ service đích giải mã",
+        "Microservices khác không có secret"
+      ],
+      "constraints": [
+        "KMS/Lambda@Edge không phải FLE phù hợp",
+        "Private key không để ở edge"
+      ],
+      "focusPoints": [
+        "Dùng public key ở edge, private key ở consumer.",
+        "Phân biệt field encryption với TLS."
+      ],
+      "realWorld": {
+        "scenario": "Khách hàng nhập dữ liệu nhạy cảm vào survey form.",
+        "challenge": "Nhiều microservice xử lý nhưng chỉ một được đọc trường.",
+        "principle": "Asymmetric field encryption giới hạn khả năng giải mã.",
+        "takeaway": "CloudFront mã hóa bằng public key, backend giữ private key."
+      }
+    }
   },
   {
     "id": "test-01-58",
@@ -1807,7 +5201,67 @@
       "B"
     ],
     "explanation": "Chọn B vì Application Migration Service sao chép nguyên trạng 120 VM với nhiều hệ điều hành/gói tùy chỉnh, còn DataSync chuyển NFS sang EFS qua DX 10 Gbps. Tái tạo thủ công tốn thời gian; Snowball không cần thiết khi có DX nhanh và các phương án dùng VM Import không thuận tiện cho toàn bộ estate.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Kết hợp Application Migration Service cho VM và DataSync cho NFS.",
+      "translation": {
+        "stem": "Công ty chuyển 120 VMware VM đa dạng và NFS 10 TB, đã có Direct Connect 10 Gbps. Giải pháp hoàn thành nhanh nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Export VM lên S3/VM Import Export và dùng Snowball cho NFS."
+          },
+          {
+            "id": "B",
+            "text": "Application Migration Service replicate VMware VM, tạo EFS và DataSync NFS qua Direct Connect."
+          },
+          {
+            "id": "C",
+            "text": "Tái tạo VM thủ công, tạo FSx for Lustre và DataSync NFS."
+          },
+          {
+            "id": "D",
+            "text": "Hai Snowball copy VM/NFS, VM Import/Export rồi copy NFS từ S3 sang EFS."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Application Migration Service",
+          "meaning": "Rehost server bằng replication"
+        },
+        {
+          "term": "VMware",
+          "meaning": "Nền tảng máy ảo tại chỗ"
+        },
+        {
+          "term": "DataSync",
+          "meaning": "Chuyển file qua network/agent"
+        }
+      ],
+      "context": "Nhiều VM tùy chỉnh cần giữ nguyên và NFS chuyển song song qua DX.",
+      "requirements": [
+        "Ít rebuild",
+        "Replicate VM",
+        "Chuyển 10 TB",
+        "Tận dụng 10 Gbps"
+      ],
+      "constraints": [
+        "Tái tạo thủ công lâu",
+        "Snowball không cần với DX nhanh",
+        "VM Import nhiều thao tác"
+      ],
+      "focusPoints": [
+        "Dùng replication cho VM tùy chỉnh.",
+        "Chọn công cụ file riêng cho NFS."
+      ],
+      "realWorld": {
+        "scenario": "Doanh nghiệp di chuyển toàn bộ VMware data center.",
+        "challenge": "Cài lại 120 VM và package là nút thắt.",
+        "principle": "MGN giảm công việc rehost, DataSync xử lý file song song.",
+        "takeaway": "Replicate trước cutover để rút ngắn downtime."
+      }
+    }
   },
   {
     "id": "test-01-59",
@@ -1837,7 +5291,65 @@
       "A"
     ],
     "explanation": "Chọn A vì API Gateway REST usage plan hỗ trợ quota theo thời gian và API key riêng cho từng khách hàng, đáp ứng các mẫu dùng khác nhau. HTTP API không hỗ trợ usage plan/API key tương đương; Lambda alias hoặc WAF không cung cấp quota khách hàng chuẩn.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng API Gateway REST usage plans để quota riêng theo khách hàng.",
+      "translation": {
+        "stem": "Lambda app phục vụ hàng trăm khách; mỗi khách có quota trong thời gian khác nhau, có khách quota cao nhưng cửa sổ ngắn. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "API Gateway REST proxy tới Lambda, usage plan quota riêng và API key từng khách."
+          },
+          {
+            "id": "B",
+            "text": "API Gateway HTTP, usage plan, route throttling và API key từng khách."
+          },
+          {
+            "id": "C",
+            "text": "Lambda alias/function URL riêng từng khách với concurrency limit."
+          },
+          {
+            "id": "D",
+            "text": "ALB tới Lambda, WAF rule quota riêng từng khách."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "usage plan",
+          "meaning": "Quota/throttling gắn API key"
+        },
+        {
+          "term": "API key",
+          "meaning": "Khóa nhận diện consumer"
+        },
+        {
+          "term": "quota",
+          "meaning": "Giới hạn request theo thời gian"
+        }
+      ],
+      "context": "Nhiều consumer dùng chung Lambda nhưng quota khác nhau.",
+      "requirements": [
+        "Quota theo khách",
+        "Khoảng thời gian linh hoạt",
+        "Proxy tới Lambda"
+      ],
+      "constraints": [
+        "HTTP API không hỗ trợ usage plan tương đương",
+        "Concurrency/WAF không phải quota consumer chuẩn"
+      ],
+      "focusPoints": [
+        "Tìm quota native của API Gateway REST.",
+        "Phân biệt throttling và concurrency."
+      ],
+      "realWorld": {
+        "scenario": "SaaS provider bán API theo gói.",
+        "challenge": "Khách có burst ngắn nhưng vẫn bị giới hạn tổng quota.",
+        "principle": "Usage plan/API key là abstraction trực tiếp cho consumer quota.",
+        "takeaway": "Tạo plan theo khách và cấp key tương ứng."
+      }
+    }
   },
   {
     "id": "test-01-60",
@@ -1867,7 +5379,66 @@
       "A"
     ],
     "explanation": "Chọn A vì Migration Hub network graph và data exploration xuất dữ liệu sang Athena, nơi có thể lọc các kết nối port 1000 rồi tạo move group. Application Migration Service không phải công cụ phân tích dependency; Network Access Analyzer phân tích đường mạng AWS chứ không đọc dữ liệu discovery on-premises, còn CloudWatch agent không cần thiết.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng Migration Hub dependency graph và Athena để tìm port cụ thể.",
+      "translation": {
+        "stem": "Công ty đã chạy Application Discovery Agent nhiều tháng, biết app dùng custom protocol port 1000 nhưng chưa biết dependency. Cần xác định server migrate cùng phase. Làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Migration Hub network graph, bật data exploration, truy vấn Athena theo port 1000 và tạo move group."
+          },
+          {
+            "id": "B",
+            "text": "Application Migration Service graph, launch test instances, acceptance test rồi tạo move group."
+          },
+          {
+            "id": "C",
+            "text": "Migration Hub với Network Access Analyzer scope port 1000 rồi tạo move group."
+          },
+          {
+            "id": "D",
+            "text": "Đẩy CloudWatch agent, xuất log S3 và dùng Athena tìm port 1000."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Application Discovery Agent",
+          "meaning": "Agent thu thập inventory/dependency"
+        },
+        {
+          "term": "Migration Hub",
+          "meaning": "Nơi nhóm/theo dõi migration"
+        },
+        {
+          "term": "move group",
+          "meaning": "Nhóm server di chuyển cùng nhau"
+        }
+      ],
+      "context": "Dữ liệu dependency đã thu thập từ hạ tầng hỗn hợp, cần lọc port 1000.",
+      "requirements": [
+        "Tìm server giao tiếp port 1000",
+        "Trực quan hóa",
+        "Tạo move group"
+      ],
+      "constraints": [
+        "Network Access Analyzer không đọc discovery data",
+        "MGN test không tìm dependency",
+        "CloudWatch agent thừa"
+      ],
+      "focusPoints": [
+        "Dùng data exploration/Athena.",
+        "Tạo group sau khi có evidence."
+      ],
+      "realWorld": {
+        "scenario": "Đội migration tránh tách app khỏi dependency latency-sensitive.",
+        "challenge": "Thiếu dependency sẽ làm custom protocol lỗi sau cutover.",
+        "principle": "Network graph và flow data cho thấy server/port thực tế.",
+        "takeaway": "Lọc port 1000 trong Athena rồi nhóm server."
+      }
+    }
   },
   {
     "id": "test-01-61",
@@ -1897,7 +5468,67 @@
       "C"
     ],
     "explanation": "Chọn C vì CloudFront có hai origin S3 với failover, CRR giữ asset ở Region mới, và DynamoDB global table sao chép điểm số đa Region. A thiếu origin S3 thứ hai/failover; same-Region replication và DMS ở B/D không đáp ứng đa Region hoặc tăng công sức.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng CloudFront/CRR và DynamoDB global tables cho game đa Region.",
+      "translation": {
+        "stem": "Game sequel có S3 game assets và DynamoDB player scores ở một Region. Cần multi-Region giảm latency, tăng reliability và ít công sức nhất.",
+        "options": [
+          {
+            "id": "A",
+            "text": "CloudFront từ S3, CRR, tạo DynamoDB Region mới làm replica target của global table."
+          },
+          {
+            "id": "B",
+            "text": "CloudFront, S3 same-Region replication và DMS CDC giữa DynamoDB."
+          },
+          {
+            "id": "C",
+            "text": "Tạo S3 bucket Region mới với CRR, CloudFront origin failover hai bucket và DynamoDB global table thêm replica."
+          },
+          {
+            "id": "D",
+            "text": "Tạo bucket cùng Region với same-Region replication, CloudFront failover và global table."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "CRR",
+          "meaning": "S3 Cross-Region Replication"
+        },
+        {
+          "term": "origin failover",
+          "meaning": "CloudFront chuyển origin khi lỗi"
+        },
+        {
+          "term": "global table",
+          "meaning": "DynamoDB replica đa Region"
+        }
+      ],
+      "context": "Game asset và player score phải gần người chơi nhiều Region.",
+      "requirements": [
+        "Giảm latency",
+        "Failover asset",
+        "Score multi-Region",
+        "Ít công sức"
+      ],
+      "constraints": [
+        "Same-Region không tạo DR Region",
+        "DMS tự dựng phức tạp",
+        "Một origin không failover"
+      ],
+      "focusPoints": [
+        "Tách static asset và database.",
+        "Dùng native multi-Region features."
+      ],
+      "realWorld": {
+        "scenario": "Game ra mắt toàn cầu với traffic khó đoán.",
+        "challenge": "Một Region lỗi không được mất asset hoặc score.",
+        "principle": "CloudFront/CRR xử lý asset; global table xử lý state.",
+        "takeaway": "Dựng bucket replica và origin failover cho asset."
+      }
+    }
   },
   {
     "id": "test-01-62",
@@ -1932,7 +5563,70 @@
       "D"
     ],
     "explanation": "B đặt provider và consumer trong cùng organization để dùng chia sẻ tài nguyên phù hợp, còn D buộc compute dùng endpoint theo AZ để tránh lưu lượng PrivateLink đi qua AZ khác. A không giải quyết việc hai bên đang ở hai organization và E chỉ mua giảm giá chứ không giảm byte truyền; tắt cross-zone một mình không bảo đảm consumer chọn đúng AZ.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Giảm phí PrivateLink bằng cùng organization và endpoint cùng AZ.",
+      "translation": {
+        "stem": "Môi trường multi-AZ dùng PrivateLink giữa provider ở một organization và consumer ở organization khác; phí truyền cao. Cần hướng dẫn developer giảm phí. Chọn hai.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dùng RAM chia subnet provider cho account khác trong organization."
+          },
+          {
+            "id": "B",
+            "text": "Đặt provider và consumer trong account cùng một organization."
+          },
+          {
+            "id": "C",
+            "text": "Tắt cross-zone load balancing trên mọi NLB provider."
+          },
+          {
+            "id": "D",
+            "text": "Consumer dùng AZ-specific endpoint service qua local DNS name."
+          },
+          {
+            "id": "E",
+            "text": "Mua Savings Plan bao phủ data transfer liên AZ."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "PrivateLink endpoint",
+          "meaning": "Interface endpoint tới service"
+        },
+        {
+          "term": "AZ-specific DNS",
+          "meaning": "DNS chọn endpoint trong cùng AZ"
+        },
+        {
+          "term": "cross-AZ transfer",
+          "meaning": "Traffic giữa Availability Zone bị tính phí"
+        }
+      ],
+      "context": "Phí PrivateLink tăng do org boundary và endpoint khác AZ.",
+      "requirements": [
+        "Giảm cross-AZ bytes",
+        "Hỗ trợ resource sharing",
+        "Placement nhất quán"
+      ],
+      "constraints": [
+        "Savings Plan không giảm bytes",
+        "Tắt cross-zone không ép consumer local",
+        "RAM share phụ thuộc cùng organization"
+      ],
+      "focusPoints": [
+        "Đưa provider/consumer cùng governance boundary.",
+        "Dùng DNS theo AZ để giữ traffic cục bộ."
+      ],
+      "realWorld": {
+        "scenario": "Nhiều team triển khai private API qua NLB/PrivateLink.",
+        "challenge": "Dịch vụ chạy nhưng hóa đơn data transfer cao.",
+        "principle": "Chi phí mạng phụ thuộc topology, không chỉ endpoint price.",
+        "takeaway": "Chuẩn hóa cùng AZ và dùng endpoint DNS theo AZ."
+      }
+    }
   },
   {
     "id": "test-01-63",
@@ -1962,7 +5656,67 @@
       "C"
     ],
     "explanation": "Chọn C vì native database replication từ SQL Server nguồn sang RDS SQL Server đích duy trì CDC gần thời gian thực rồi mới cutover, phù hợp near-zero downtime. DMS sang S3 không trực tiếp tạo database đích đồng bộ; Application Migration Service/rehost không hiện đại hóa cơ sở dữ liệu, còn Aurora không tương thích SQL Server nguyên trạng.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng native replication để migrate SQL Server gần như không downtime.",
+      "translation": {
+        "stem": "Database SQL Server legacy cần chuyển lên AWS và hiện đại hóa, gần zero downtime. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dùng MGN/SCT, upgrade tại chỗ, export sang Aurora Serverless và repoint app."
+          },
+          {
+            "id": "B",
+            "text": "DMS rehost tới S3 với CDC rồi load vào RDS SQL Server."
+          },
+          {
+            "id": "C",
+            "text": "Native database HA tools kết nối source với RDS SQL Server, replicate rồi transition."
+          },
+          {
+            "id": "D",
+            "text": "MGN rehost DB lên EC2, detach sang RDS rồi reattach và cutover network."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "native replication",
+          "meaning": "Replication tích hợp của database engine"
+        },
+        {
+          "term": "near-zero downtime",
+          "meaning": "Thời gian dừng gần bằng không"
+        },
+        {
+          "term": "cutover",
+          "meaning": "Chuyển traffic sang đích"
+        }
+      ],
+      "context": "Engine vẫn là SQL Server nhưng platform chuyển sang RDS.",
+      "requirements": [
+        "Replicate ongoing changes",
+        "Đích đầy đủ",
+        "Cutover ngắn",
+        "Ít mất dữ liệu"
+      ],
+      "constraints": [
+        "S3 không phải database đích hoạt động",
+        "MGN/detach gây downtime",
+        "Aurora không tương thích nguyên trạng"
+      ],
+      "focusPoints": [
+        "Giữ engine tương thích để dùng native replication.",
+        "Cutover sau khi replication lag bằng không."
+      ],
+      "realWorld": {
+        "scenario": "Công ty chuyển SQL Server quan trọng sang RDS.",
+        "challenge": "Dừng database lâu ảnh hưởng giao dịch/SLA.",
+        "principle": "Replication native giữ semantics và đồng bộ trực tiếp.",
+        "takeaway": "Cho source và RDS chạy song song rồi chuyển app."
+      }
+    }
   },
   {
     "id": "test-01-64",
@@ -1992,7 +5746,67 @@
       "A"
     ],
     "explanation": "Chọn A vì Secrets Manager lưu private key được mã hóa và rotation Lambda có thể tạo cặp mới, cập nhật public key trên từng EC2 rồi thay secret với thời gian ngắn. Parameter Store dạng String không bảo vệ bí mật đúng yêu cầu; KMS không quản lý EC2 key pair, còn Run Command không tự cung cấp nơi lưu private key an toàn.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Tự động rotation EC2 SSH key bằng Secrets Manager và automation.",
+      "translation": {
+        "stem": "Linux EC2 dùng key pair riêng. Công ty muốn rotation tự động theo yêu cầu, lưu key mã hóa và downtime dưới một phút. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Lưu key trong Secrets Manager, rotation Lambda tạo cặp mới, thay public key EC2 và private key trong secret."
+          },
+          {
+            "id": "B",
+            "text": "Lưu key dạng String trong Parameter Store, maintenance window gọi Lambda tạo key và cập nhật."
+          },
+          {
+            "id": "C",
+            "text": "Import key pair vào KMS và bật automatic key rotation bằng EventBridge."
+          },
+          {
+            "id": "D",
+            "text": "Đưa EC2 vào Fleet Manager, maintenance window Run Command tạo key và thay public key."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "SSH key pair",
+          "meaning": "Cặp public/private đăng nhập SSH"
+        },
+        {
+          "term": "Secrets Manager",
+          "meaning": "Kho secret mã hóa có rotation"
+        },
+        {
+          "term": "authorized key",
+          "meaning": "Public key được phép trên server"
+        }
+      ],
+      "context": "Mỗi EC2 cần key riêng và rotation nhanh không mất truy cập.",
+      "requirements": [
+        "Tạo key mới",
+        "Lưu private key mã hóa",
+        "Cập nhật public key",
+        "Downtime ngắn"
+      ],
+      "constraints": [
+        "KMS không quản lý EC2 key pair",
+        "String không bảo vệ đủ",
+        "D không nêu kho private key"
+      ],
+      "focusPoints": [
+        "Tách lưu secret khỏi cập nhật server.",
+        "Rotation cập nhật server và secret gần nguyên tử."
+      ],
+      "realWorld": {
+        "scenario": "Đội bảo mật xoay key cho fleet Linux.",
+        "challenge": "Key lộ phải được thay nhanh không thao tác từng máy.",
+        "principle": "Secrets Manager + automation bảo vệ private key.",
+        "takeaway": "Lưu private key an toàn và cập nhật authorized_keys tự động."
+      }
+    }
   },
   {
     "id": "test-01-65",
@@ -2022,7 +5836,66 @@
       "C"
     ],
     "explanation": "Chọn C vì Global Accelerator đưa người dùng vào backbone AWS gần nhất rồi qua TCP tới ALB, bảo toàn các HTTP method không chuẩn và không cần triển khai thêm Region. CloudFront/API Gateway có giới hạn hoặc không cần thiết cho API này; nhân bản ứng dụng ở hai Region làm tăng vận hành.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Chọn Global Accelerator cho API method không chuẩn và user toàn cầu.",
+      "translation": {
+        "stem": "SaaS API trên ALB/EKS ở us-east-1 dùng LINK, UNLINK, LOCK, UNLOCK. User ngoài Mỹ có latency không ổn định; cần ít vận hành.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Thêm CloudFront và đặt ALB làm origin."
+          },
+          {
+            "id": "B",
+            "text": "Thêm API Gateway edge-optimized và đặt ALB làm target."
+          },
+          {
+            "id": "C",
+            "text": "Tạo Global Accelerator trỏ tới ALB."
+          },
+          {
+            "id": "D",
+            "text": "Triển khai API thêm hai Region và dùng Route 53 latency routing."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Global Accelerator",
+          "meaning": "Anycast edge đưa TCP/UDP vào AWS backbone"
+        },
+        {
+          "term": "ALB",
+          "meaning": "Application Load Balancer"
+        },
+        {
+          "term": "non-standard method",
+          "meaning": "HTTP method ngoài nhóm phổ biến"
+        }
+      ],
+      "context": "API một Region, client toàn cầu, method HTTP không chuẩn.",
+      "requirements": [
+        "Giảm latency",
+        "Giữ method",
+        "Không nhân bản app",
+        "Ít quản trị"
+      ],
+      "constraints": [
+        "CloudFront/API Gateway có giới hạn hoặc không cần",
+        "Thêm Region tăng deployment complexity"
+      ],
+      "focusPoints": [
+        "Kiểm tra protocol/method compatibility.",
+        "Phân biệt acceleration và content caching."
+      ],
+      "realWorld": {
+        "scenario": "SaaS provider có khách toàn cầu gọi API động.",
+        "challenge": "CDN không luôn hỗ trợ method/API phù hợp.",
+        "principle": "Global Accelerator tối ưu đường truyền mà không biến đổi API.",
+        "takeaway": "Đặt accelerator trước ALB để dùng backbone gần client."
+      }
+    }
   },
   {
     "id": "test-01-66",
@@ -2052,7 +5925,67 @@
       "C"
     ],
     "explanation": "Chọn C vì AWS Backup lập lịch daily, tạo bản sao liên Region và lưu cấu hình/volume backup, trong khi CloudFormation đã sẵn sàng dựng mạng khi DR. DLM không tự phục hồi toàn bộ cấu hình instance; snapshot thủ công bằng SSM nhiều công việc hơn, còn DataSync không sao lưu cấu hình EC2.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng AWS Backup daily cross-Region kết hợp CloudFormation cho DR EC2.",
+      "translation": {
+        "stem": "Fleet 20 EC2 persistent có nhiều EBS volume; cần backup Region khác, phục hồi trong một ngày và mất tối đa một ngày dữ liệu. Network CloudFormation DR đã có, đội ít người.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Template EC2 thứ hai, SSM daily multi-volume snapshot copy Region, launch template và restore khi lỗi."
+          },
+          {
+            "id": "B",
+            "text": "DLM daily multi-volume snapshot, khi lỗi launch CloudFormation và dùng DLM restore volume/config."
+          },
+          {
+            "id": "C",
+            "text": "AWS Backup daily plan copy backup sang vault Region phụ; khi lỗi launch CloudFormation, restore volume/config và chuyển usage."
+          },
+          {
+            "id": "D",
+            "text": "Chạy EC2 cùng size ở Region phụ và DataSync daily copy dữ liệu."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "AWS Backup vault",
+          "meaning": "Kho recovery point managed"
+        },
+        {
+          "term": "multi-volume snapshot",
+          "meaning": "Snapshot nhất quán nhiều EBS"
+        },
+        {
+          "term": "CloudFormation DR",
+          "meaning": "IaC dựng hạ tầng dự phòng"
+        }
+      ],
+      "context": "Workload persistent cần backup ngày, không cần warm standby.",
+      "requirements": [
+        "Cross-Region copy",
+        "RPO một ngày",
+        "Restore volume/config",
+        "Ít vận hành"
+      ],
+      "constraints": [
+        "DataSync không backup EC2 config",
+        "DLM không restore full instance",
+        "SSM script nhiều thành phần"
+      ],
+      "focusPoints": [
+        "Dùng AWS Backup cho lịch/copy.",
+        "Kết hợp IaC cho resource và backup cho data."
+      ],
+      "realWorld": {
+        "scenario": "Công ty nhỏ cần DR cho fleet EC2.",
+        "challenge": "Không đủ nhân lực duy trì active-active hoặc snapshot script.",
+        "principle": "Backup managed + IaC là pilot-light tiết kiệm.",
+        "takeaway": "Backup hằng ngày, dựng network bằng template rồi restore."
+      }
+    }
   },
   {
     "id": "test-01-67",
@@ -2088,7 +6021,68 @@
       "E"
     ],
     "explanation": "B yêu cầu trust policy của role đặt SAML provider làm principal, C kiểm tra portal gọi AssumeRoleWithSAML với assertion và ARN đúng, còn E kiểm tra IdP ánh xạ user/group tới role có quyền. IAM user policy và DNS IdP trong VPC không phải điều kiện của SAML federation; người dùng được cấp quyền qua role federated.",
-    "reviewNote": "Option B bị dính thêm câu và ký hiệu “B.” trong văn bản trích xuất; nội dung trust policy vẫn nhận diện được."
+    "reviewNote": "Option B bị dính thêm câu và ký hiệu “B.” trong văn bản trích xuất; nội dung trust policy vẫn nhận diện được.",
+    "learningAid": {
+      "summary": "Kiểm tra trust policy, STS call và SAML assertion.",
+      "translation": {
+        "stem": "SAML 2.0 federation với IdP tại chỗ cho phép architect test nhưng test users không vào AWS. Cần kiểm tra mục nào? Chọn ba.",
+        "options": [
+          {
+            "id": "A",
+            "text": "IAM user permission policy cho phép SAML federation."
+          },
+          {
+            "id": "B",
+            "text": "Trust policy role federated đặt SAML provider làm principal và user thuộc group cần thiết."
+          },
+          {
+            "id": "C",
+            "text": "Portal gọi STS AssumeRoleWithSAML với ARN provider, ARN role và assertion."
+          },
+          {
+            "id": "D",
+            "text": "DNS hostname IdP tại chỗ reachable từ VPC AWS."
+          },
+          {
+            "id": "E",
+            "text": "IdP assertion ánh xạ user/group tới IAM role có quyền phù hợp."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "SAML 2.0",
+          "meaning": "Chuẩn assertion cho đăng nhập liên kết"
+        },
+        {
+          "term": "IdP",
+          "meaning": "Identity provider xác thực user"
+        },
+        {
+          "term": "AssumeRoleWithSAML",
+          "meaning": "STS đổi assertion thành AWS session"
+        }
+      ],
+      "context": "Architect đăng nhập được nhưng test user có thể sai mapping/trust/STS.",
+      "requirements": [
+        "Trust role đúng",
+        "STS parameters đúng",
+        "Assertion map group tới role"
+      ],
+      "constraints": [
+        "IAM user policy/DNS VPC không phải điều kiện federation role thông thường"
+      ],
+      "focusPoints": [
+        "Kiểm tra assertion và AWS trust.",
+        "Đối chiếu tham số STS."
+      ],
+      "realWorld": {
+        "scenario": "Nhân viên đăng nhập AWS qua portal SSO.",
+        "challenge": "Lỗi mapping khiến chỉ một số user không thấy role.",
+        "principle": "Federation là chuỗi IdP → assertion → trust role → STS.",
+        "takeaway": "Debug từng mắt xích thay vì sửa permission ngẫu nhiên."
+      }
+    }
   },
   {
     "id": "test-01-68",
@@ -2128,7 +6122,73 @@
       "D"
     ],
     "explanation": "A bật Config để Firewall Manager kiểm tra tài khoản, C bật all features của Organizations để quản lý tập trung, và D dùng Firewall Manager triển khai WAF baseline cho mọi CloudFront. GuardDuty, Shield Advanced và Security Hub không phải cơ chế phân phối rule WAF OWASP.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng Firewall Manager phân phối WAF baseline qua organization.",
+      "translation": {
+        "stem": "Organization có hàng trăm account và muốn baseline bảo vệ OWASP top 10 cho mọi CloudFront bằng AWS WAF. Chọn ba bước.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Bật AWS Config trong mọi account."
+          },
+          {
+            "id": "B",
+            "text": "Bật GuardDuty trong mọi account."
+          },
+          {
+            "id": "C",
+            "text": "Bật all features cho organization."
+          },
+          {
+            "id": "D",
+            "text": "Dùng Firewall Manager triển khai WAF rules cho mọi account/CloudFront."
+          },
+          {
+            "id": "E",
+            "text": "Dùng Shield Advanced triển khai WAF rules."
+          },
+          {
+            "id": "F",
+            "text": "Dùng Security Hub triển khai WAF rules."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Firewall Manager",
+          "meaning": "Quản lý policy firewall tập trung"
+        },
+        {
+          "term": "AWS WAF",
+          "meaning": "Lọc web request theo rule"
+        },
+        {
+          "term": "all features",
+          "meaning": "Khả năng quản lý đầy đủ Organizations"
+        }
+      ],
+      "context": "WAF policy phải tự áp cho distribution hiện hữu và mới.",
+      "requirements": [
+        "Governance đầy đủ",
+        "Config prerequisite",
+        "WAF policy tập trung"
+      ],
+      "constraints": [
+        "GuardDuty/Security Hub không deploy WAF",
+        "Shield Advanced không thay Firewall Manager"
+      ],
+      "focusPoints": [
+        "Nhận diện dịch vụ policy orchestration.",
+        "Kiểm tra prerequisite Firewall Manager."
+      ],
+      "realWorld": {
+        "scenario": "Tập đoàn có hàng trăm CloudFront do nhiều account quản lý.",
+        "challenge": "Tự gắn WAF từng distribution dễ bỏ sót distribution mới.",
+        "principle": "Firewall Manager biến WAF baseline thành organization policy.",
+        "takeaway": "Bật features/Config rồi áp WAF policy tập trung."
+      }
+    }
   },
   {
     "id": "test-01-69",
@@ -2158,7 +6218,66 @@
       "C"
     ],
     "explanation": "Chọn C vì CloudFront origin group tự chuyển từ ALB sang S3 khi nhận 503 và phục vụ trang lỗi ngay trong request hiện tại. Route 53 failover phụ thuộc DNS cache và không xử lý tức thời từng response; distribution thứ hai hoặc CloudFront Function phức tạp, tốn công hơn.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng CloudFront origin failover để hiện error page ngay khi ALB 503.",
+      "translation": {
+        "stem": "Website dùng S3/CloudFront cho static và ALB/EC2 cho dynamic. ALB đôi lúc 503 trong peak; cần trang lỗi tùy chỉnh hiển thị ngay với ít vận hành.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Route 53 failover health check ALB sang S3 bucket."
+          },
+          {
+            "id": "B",
+            "text": "CloudFront thứ hai/S3 website và Route 53 active-passive."
+          },
+          {
+            "id": "C",
+            "text": "CloudFront origin group với ALB primary, S3 website secondary và origin failover."
+          },
+          {
+            "id": "D",
+            "text": "CloudFront Function kiểm tra response, đọc S3 và phục vụ error page."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "origin group",
+          "meaning": "Nhóm primary/secondary origin"
+        },
+        {
+          "term": "origin failover",
+          "meaning": "Chuyển origin khi response lỗi"
+        },
+        {
+          "term": "HTTP 503",
+          "meaning": "Service unavailable từ backend"
+        }
+      ],
+      "context": "Dynamic request cần static fallback khi backend unavailable.",
+      "requirements": [
+        "Phản hồi ngay",
+        "Fallback S3",
+        "Không phụ thuộc DNS TTL",
+        "Ít code"
+      ],
+      "constraints": [
+        "DNS health check chậm với từng response",
+        "Distribution thứ hai/Function phức tạp"
+      ],
+      "focusPoints": [
+        "Chọn failover ở response layer.",
+        "Dùng static S3 origin."
+      ],
+      "realWorld": {
+        "scenario": "Website thương mại điện tử quá tải trong flash sale.",
+        "challenge": "DNS failover có cache và không xử lý từng 503 ngay.",
+        "principle": "Origin failover phản ứng trực tiếp với status.",
+        "takeaway": "Đặt ALB primary và bucket lỗi secondary cùng distribution."
+      }
+    }
   },
   {
     "id": "test-01-70",
@@ -2188,7 +6307,67 @@
       "B"
     ],
     "explanation": "Chọn B vì API Gateway hấp thụ burst, tích hợp trực tiếp vào SQS để không mất dữ liệu, và Lambda tự scale đọc queue. ALB không dùng SQS làm target, proxy EC2 phải tự xử lý burst, còn CloudFront không phải hàng đợi hay origin cho Kinesis.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Đệm burst API vào SQS bằng API Gateway và Lambda consumer.",
+      "translation": {
+        "stem": "Hàng triệu thiết bị gửi REST API với burst khó đoán; engine phải xử lý toàn bộ, không mất dữ liệu. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "ALB có SQS target và ECS Fargate xử lý queue."
+          },
+          {
+            "id": "B",
+            "text": "API Gateway HTTP API tích hợp SQS và Lambda xử lý message."
+          },
+          {
+            "id": "C",
+            "text": "API Gateway REST, ASG EC2 proxy xử lý trực tiếp incoming data."
+          },
+          {
+            "id": "D",
+            "text": "CloudFront origin là Kinesis Data Stream và Lambda đọc stream."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "service integration",
+          "meaning": "API Gateway gọi trực tiếp dịch vụ AWS"
+        },
+        {
+          "term": "durable queue",
+          "meaning": "Queue giữ message khi consumer chậm"
+        },
+        {
+          "term": "burst traffic",
+          "meaning": "Lưu lượng tăng đột ngột"
+        }
+      ],
+      "context": "IoT producer burst, consumer đôi lúc chậm hơn tốc độ gửi.",
+      "requirements": [
+        "Không mất request",
+        "Hấp thụ burst",
+        "Scale consumer",
+        "Retry message"
+      ],
+      "constraints": [
+        "ALB không nhận SQS làm target",
+        "EC2 trực tiếp có thể quá tải",
+        "CloudFront không dùng Kinesis làm origin"
+      ],
+      "focusPoints": [
+        "Tìm durable buffer giữa API và processor.",
+        "Dùng queue để tự retry."
+      ],
+      "realWorld": {
+        "scenario": "Thiết bị gửi telemetry đồng thời khi có sự kiện.",
+        "challenge": "Không được mất dữ liệu nhưng không thể provision peak capacity.",
+        "principle": "API Gateway + SQS tách ingestion khỏi processing.",
+        "takeaway": "Ack sau khi vào queue, xử lý bất đồng bộ."
+      }
+    }
   },
   {
     "id": "test-01-71",
@@ -2218,7 +6397,66 @@
       "D"
     ],
     "explanation": "Chọn D vì ECS Fargate tính tài nguyên theo task đang chạy, không cần quản lý EC2 cluster, và ECS managed tags cộng task tags cho phép phân bổ chi phí theo từng khu vực. EKS cần control plane/kiến thức Kubernetes; EKS/EC2 còn phải quản lý node và các lựa chọn không có cơ chế tag task đơn giản tương đương.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng ECS Fargate và ECS managed tags để tính chi phí theo task.",
+      "translation": {
+        "stem": "Route planning dùng public Docker image, mỗi khu vực cần container/config riêng; cần cấp tài nguyên theo số container với ít vận hành.",
+        "options": [
+          {
+            "id": "A",
+            "text": "EKS trên EC2, launch pod và dùng --tags gán tag."
+          },
+          {
+            "id": "B",
+            "text": "EKS trên Fargate, launch pod và gọi tag-resource cho pod."
+          },
+          {
+            "id": "C",
+            "text": "ECS trên EC2, run task với --tags gán custom tag."
+          },
+          {
+            "id": "D",
+            "text": "ECS trên Fargate, run-task bật enableECSManagedTags và --tags cho task."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "ECS Fargate",
+          "meaning": "Chạy container không quản lý EC2 node"
+        },
+        {
+          "term": "ECS managed tags",
+          "meaning": "Tag tự động do ECS gắn cho task"
+        },
+        {
+          "term": "task",
+          "meaning": "Một lần chạy container theo task definition"
+        }
+      ],
+      "context": "Số container thay đổi theo khu vực và cần phân bổ chi phí theo workload.",
+      "requirements": [
+        "Không quản lý node",
+        "Tag task",
+        "Scale theo container",
+        "Pull image public"
+      ],
+      "constraints": [
+        "EKS thêm cluster/control",
+        "EC2 cần capacity planning"
+      ],
+      "focusPoints": [
+        "Chọn orchestrator cho task đơn giản.",
+        "Dùng managed tags ở task level."
+      ],
+      "realWorld": {
+        "scenario": "Công ty chạy job route map ngắn hạn theo từng hub.",
+        "challenge": "Không muốn duy trì Kubernetes node khi container thay đổi.",
+        "principle": "Fargate tính theo task và ECS tags hỗ trợ chargeback.",
+        "takeaway": "Dùng ECS run-task/Fargate, tag theo khu vực."
+      }
+    }
   },
   {
     "id": "test-01-72",
@@ -2248,7 +6486,65 @@
       "C"
     ],
     "explanation": "Chọn C vì instance thứ hai đã có contact flows và số điện thoại, health check/alarm kích hoạt Lambda chỉ cần triển khai users khi vùng chính lỗi, nên RTO thấp. A phải tạo cả Connect instance thủ công; B còn triển khai flows và numbers sau sự cố; D trì hoãn việc cấp claimed numbers, thường là bước chậm hơn.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Giảm RTO Amazon Connect bằng cách dựng sẵn phần lớn cấu hình ở Region phụ.",
+      "translation": {
+        "stem": "Contact center Amazon Connect có nhiều flow, user và claimed phone number; cần DR liên Region với RTO thấp nhất.",
+        "options": [
+          {
+            "id": "A",
+            "text": "Khi lỗi mới tạo Connect instance rồi deploy flow/user/number bằng CloudFormation."
+          },
+          {
+            "id": "B",
+            "text": "Dựng instance phụ và user trước; khi lỗi Lambda deploy flow/number."
+          },
+          {
+            "id": "C",
+            "text": "Dựng instance phụ với flow/number, health check/alarm, khi lỗi Lambda deploy user."
+          },
+          {
+            "id": "D",
+            "text": "Dựng instance phụ với user/flow, health check/alarm, khi lỗi Lambda deploy claimed number."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "Amazon Connect instance",
+          "meaning": "Môi trường contact center logic"
+        },
+        {
+          "term": "contact flow",
+          "meaning": "Luồng xử lý cuộc gọi/chat"
+        },
+        {
+          "term": "claimed number",
+          "meaning": "Số điện thoại đã claim trong Connect"
+        }
+      ],
+      "context": "Contact center cần vùng dự phòng, trong đó provision number/flow có thể chậm.",
+      "requirements": [
+        "RTO thấp",
+        "Instance/flow/number sẵn",
+        "Ít thao tác sau failure"
+      ],
+      "constraints": [
+        "Tạo instance hoặc claim number sau lỗi kéo dài",
+        "Health check phải kích hoạt automation"
+      ],
+      "focusPoints": [
+        "Đưa thành phần chậm vào warm standby.",
+        "Giảm việc sau failure xuống tối thiểu."
+      ],
+      "realWorld": {
+        "scenario": "Call center phục vụ liên tục trong mùa cao điểm.",
+        "challenge": "Provision Connect/phone number sau outage làm RTO dài.",
+        "principle": "Warm standby nhanh hơn rebuild toàn bộ.",
+        "takeaway": "Pre-provision Connect, flow và number; tự động bổ sung phần còn thiếu."
+      }
+    }
   },
   {
     "id": "test-01-73",
@@ -2278,7 +6574,67 @@
       "C"
     ],
     "explanation": "Chọn C vì DocumentDB tương thích MongoDB và triển khai nhiều AZ, kết hợp EC2 Auto Scaling đa AZ, cho phép rehost gần nguyên trạng mà vẫn HA. Aurora không tương thích MongoDB, một AZ không HA, và DocumentDB không có on-demand capacity mode như D.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Dùng DocumentDB tương thích MongoDB và EC2 đa AZ để rehost không đổi app.",
+      "translation": {
+        "stem": "Website Java dùng MongoDB NoSQL tại chỗ, cần di chuyển nguyên cấu trúc lên AWS, HA và không sửa ứng dụng. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dùng Aurora cho subscriber data và EC2 ASG đa AZ cho Java."
+          },
+          {
+            "id": "B",
+            "text": "Dùng MongoDB trên EC2 nhưng backend ASG chỉ một AZ."
+          },
+          {
+            "id": "C",
+            "text": "Dùng DocumentDB tương thích MongoDB, instance đủ cỡ đa AZ và backend EC2 ASG đa AZ."
+          },
+          {
+            "id": "D",
+            "text": "Dùng DocumentDB on-demand capacity mode đa AZ và backend đa AZ."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "DocumentDB",
+          "meaning": "Database managed tương thích MongoDB"
+        },
+        {
+          "term": "MongoDB compatibility",
+          "meaning": "Tương thích API/driver MongoDB trong phạm vi hỗ trợ"
+        },
+        {
+          "term": "Multi-AZ",
+          "meaning": "Triển khai qua nhiều Availability Zone"
+        }
+      ],
+      "context": "Ứng dụng Java phụ thuộc MongoDB và không thể refactor.",
+      "requirements": [
+        "Giữ API tương thích",
+        "Database HA",
+        "Backend HA",
+        "Không đổi code"
+      ],
+      "constraints": [
+        "Aurora không tương thích MongoDB",
+        "Một AZ không HA",
+        "DocumentDB không có on-demand capacity mode"
+      ],
+      "focusPoints": [
+        "Chọn managed service tương thích engine.",
+        "HA bao phủ cả data và app tier."
+      ],
+      "realWorld": {
+        "scenario": "Website bất động sản legacy cần chuyển nguyên trạng.",
+        "challenge": "Không có thời gian đổi driver/schema trước go-live.",
+        "principle": "DocumentDB là compatibility path và ASG đa AZ bảo vệ backend.",
+        "takeaway": "Kiểm tra compatibility matrix trước khi rehost."
+      }
+    }
   },
   {
     "id": "test-01-74",
@@ -2308,7 +6664,66 @@
       "C"
     ],
     "explanation": "Chọn C vì EventBridge kích hoạt CodeBuild khi push, CodeBuild clone repository và lưu bản sao zip vào S3 ở Region thứ hai. CodeCommit không phải tài nguyên được AWS Backup/DRS hỗ trợ trực tiếp; CodeCommit cũng không có snapshot Step Functions như D.",
-    "reviewNote": ""
+    "reviewNote": "",
+    "learningAid": {
+      "summary": "Tạo backup CodeCommit bằng EventBridge/CodeBuild vào S3 liên Region.",
+      "translation": {
+        "stem": "Repository CodeCommit cần một bản backup ở Region thứ hai. Giải pháp nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dùng Elastic Disaster Recovery replicate CodeCommit repository."
+          },
+          {
+            "id": "B",
+            "text": "Dùng AWS Backup hourly backup CodeCommit và copy cross-Region."
+          },
+          {
+            "id": "C",
+            "text": "EventBridge gọi CodeBuild khi push; CodeBuild clone repo, tạo zip và copy vào S3 Region thứ hai."
+          },
+          {
+            "id": "D",
+            "text": "Step Functions hourly snapshot CodeCommit rồi copy snapshot vào S3 Region thứ hai."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "CodeCommit",
+          "meaning": "Git repository managed của AWS"
+        },
+        {
+          "term": "CodeBuild",
+          "meaning": "Dịch vụ build chạy script/clone repo"
+        },
+        {
+          "term": "repository backup",
+          "meaning": "Bản sao nội dung Git để khôi phục"
+        }
+      ],
+      "context": "CodeCommit không có snapshot/backup native như EBS/RDS trong lựa chọn.",
+      "requirements": [
+        "Backup sau push",
+        "Region khác",
+        "Tự động",
+        "Đủ nội dung repository"
+      ],
+      "constraints": [
+        "DRS/AWS Backup không hỗ trợ theo mô tả",
+        "Không có API snapshot CodeCommit như D"
+      ],
+      "focusPoints": [
+        "Tạo backup từ Git clone theo event.",
+        "Lưu artifact trong S3 cross-Region."
+      ],
+      "realWorld": {
+        "scenario": "Đội phát triển bảo vệ source code khỏi lỗi Region.",
+        "challenge": "Backup hourly có thể mất commit và dịch vụ không snapshot trực tiếp.",
+        "principle": "Event-driven clone tạo bản sao gần realtime.",
+        "takeaway": "Ghi zip/repository artifact vào bucket S3 DR."
+      }
+    }
   },
   {
     "id": "test-01-75",
@@ -2338,6 +6753,66 @@
       "B"
     ],
     "explanation": "Chọn B vì S3 File Gateway cung cấp mount NFS và cache local nhanh cho server Linux, đồng thời đồng bộ file lên S3 mà không cần sửa ứng dụng; RefreshCache cập nhật thay đổi từ S3. Lambda đòi hỏi viết lại, FSx for Lustre cần client Lustre chứ không phải NFS, còn DataSync thêm quy trình đồng bộ thay vì gateway liên tục.",
-    "reviewNote": "Option D bị chèn văn bản biểu mẫu Google ở cuối; phần phương án AWS vẫn đọc được."
+    "reviewNote": "Option D bị chèn văn bản biểu mẫu Google ở cuối; phần phương án AWS vẫn đọc được.",
+    "learningAid": {
+      "summary": "Dùng S3 File Gateway để giữ file access local và đồng bộ lên S3.",
+      "translation": {
+        "stem": "Server Linux tạo/sửa khoảng năm tài liệu mỗi giây, cần local access nhanh và file phải public trên S3 trong 30 phút; server chưa hỗ trợ S3 API. Giải pháp ít công sức nhất?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Di chuyển app thành Lambda và dùng Java SDK thao tác trực tiếp S3."
+          },
+          {
+            "id": "B",
+            "text": "Dựng S3 File Gateway, file share liên kết document store, mount NFS trên EC2 và refresh cache khi S3 đổi."
+          },
+          {
+            "id": "C",
+            "text": "Dùng FSx for Lustre liên kết S3, cài Lustre client và mount document store trên EC2 bằng NFS."
+          },
+          {
+            "id": "D",
+            "text": "Dùng DataSync đồng bộ file EC2 với S3 theo task."
+          }
+        ]
+      },
+      "keywords": [
+        {
+          "term": "S3 File Gateway",
+          "meaning": "Gateway file local đưa dữ liệu vào S3"
+        },
+        {
+          "term": "NFS",
+          "meaning": "Giao thức file system mạng"
+        },
+        {
+          "term": "RefreshCache",
+          "meaning": "API cập nhật cache từ S3"
+        }
+      ],
+      "context": "Ứng dụng legacy cần file system nhanh trong khi downstream dùng S3 API.",
+      "requirements": [
+        "Không sửa app",
+        "Local mount",
+        "Upload dưới 30 phút",
+        "Đồng bộ S3"
+      ],
+      "constraints": [
+        "Lambda/SDK đòi hỏi rewrite",
+        "Lustre cần client/giao thức khác",
+        "DataSync là task batch"
+      ],
+      "focusPoints": [
+        "Chọn adapter file-to-object.",
+        "Kiểm tra local latency và upload SLA."
+      ],
+      "realWorld": {
+        "scenario": "Server xử lý tài liệu cần tiếp tục dùng filesystem trong khi chuẩn hóa S3.",
+        "challenge": "Không thể sửa server ngay nhưng file hoàn tất phải xuất hiện nhanh.",
+        "principle": "File Gateway che giấu S3 API phía sau NFS và upload nền.",
+        "takeaway": "Dùng gateway giữ code cũ, client mới đọc trực tiếp S3."
+      }
+    }
   }
 ]
