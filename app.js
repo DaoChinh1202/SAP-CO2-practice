@@ -4,7 +4,7 @@
 
   const STORAGE_KEY = "sap-c02-offline-session";
   const THEME_KEY = "sap-c02-offline-theme";
-  const DATA_VERSION = "learning-aids-1";
+  const DATA_VERSION = "expert-aids-2";
   const app = document.getElementById("app");
   const loading = document.getElementById("loading");
   const liveRegion = document.getElementById("live-region");
@@ -216,6 +216,8 @@
     return value.map((item) => "<li>" + escapeHtml(item) + "</li>").join("");
   };
   const aidListBlock = (value, fallback) => '<ul class="learning-detail-list">' + aidList(value, fallback) + "</ul>";
+  const aidParagraph = (value, fallback) => '<p>' + aidText(value, '<span class="learning-fallback">' + fallback + "</span>") + "</p>";
+  const aidRows = (items, render, fallback) => Array.isArray(items) && items.length ? items.map(render).join("") : '<p class="learning-fallback">' + fallback + "</p>";
   const keywordMarkup = (items) => items.map((item) => {
     if (typeof item === "string") return "<span>" + escapeHtml(item) + "</span>";
     const term = item && item.term ? item.term : "";
@@ -225,16 +227,34 @@
   function renderLearningDrawer(question) {
     const aid = question.learningAid || {};
     const focus = aid.focusPoints || aid.focus || aid.keyPoints;
+    const reasoning = Array.isArray(aid.reasoning) ? aid.reasoning : [];
+    const analysis = aid.answerAnalysis || {};
+    const correctAnalysis = Array.isArray(analysis.correct) ? analysis.correct : [];
+    const alternatives = Array.isArray(analysis.alternatives) ? analysis.alternatives : [];
+    const boundaries = Array.isArray(aid.serviceBoundaries) ? aid.serviceBoundaries : [];
+    const traps = Array.isArray(aid.examTraps) ? aid.examTraps : [];
     const keywords = Array.isArray(aid.keywords) ? aid.keywords : [];
     const context = aid.context || aid.contextRequirements || {};
     const translation = aid.translation || aid.vietnamese || {};
     const real = aid.realWorld || aid.example || aid.scenario || {};
     const options = (translation.options || []).map((item) => "<li>" + escapeHtml(typeof item === "string" ? item : (item.id || "") + ". " + (item.text || "")) + "</li>").join("");
+    const reasoningMarkup = reasoning.length
+      ? '<div class="learning-section learning-reasoning"><h3><span>01</span> Đường suy luận</h3><ol>' + reasoning.map((item) => "<li><b>" + escapeHtml(item.observation || "Quan sát") + "</b>" + (item.inference ? "<span>" + escapeHtml(item.inference) + "</span>" : "") + "</li>").join("") + "</ol></div>"
+      : '<div class="learning-section"><h3><span>01</span> Điểm cần tập trung</h3><ul>' + aidList(focus, "Chưa có điểm tập trung được cung cấp.") + "</ul></div>";
+    const correctMarkup = correctAnalysis.length || analysis.combinationLogic
+      ? '<div class="learning-section learning-correct"><h3><span>02</span> Vì sao đúng</h3>' + aidRows(correctAnalysis, (item) => '<p><b>' + escapeHtml(item.id || "Đáp án") + ':</b> ' + escapeHtml(item.why || "") + "</p>", "Chưa có phân tích đáp án.") + (analysis.combinationLogic ? '<p><b>Kết hợp đáp án:</b> ' + escapeHtml(analysis.combinationLogic) + "</p>" : "") + "</div>"
+      : "";
+    const v2Details = [
+      alternatives.length ? '<details class="learning-disclosure"><summary>Vì sao các lựa chọn khác không phù hợp</summary><div>' + alternatives.map((item) => '<div class="learning-detail-card"><p><b>' + escapeHtml(item.id || "Lựa chọn") + '</b> ' + escapeHtml(item.failsBecause || "") + "</p>" + (item.whenFits ? "<p><b>Khi nào phù hợp:</b> " + escapeHtml(item.whenFits) + "</p>" : "") + "</div>").join("") + "</div></details>" : "",
+      boundaries.length ? '<details class="learning-disclosure"><summary>Ranh giới dịch vụ</summary><div>' + boundaries.map((item) => '<div class="learning-detail-card"><p><b>' + escapeHtml(item.service || "Dịch vụ") + "</b></p><p><b>Dùng khi:</b> " + escapeHtml(item.useWhen || "") + "</p><p><b>Không dùng cho:</b> " + escapeHtml(item.notFor || "") + "</p></div>").join("") + "</div></details>" : "",
+      traps.length ? '<details class="learning-disclosure"><summary>Bẫy thường gặp</summary><div><ul class="learning-detail-list">' + traps.map((item) => "<li><b>" + escapeHtml(item.cue || "Dấu hiệu") + ":</b> " + escapeHtml(item.avoid || "") + "</li>").join("") + "</ul></div></details>" : ""
+    ].join("");
+    const memoryMarkup = aid.memoryAnchor ? '<div class="learning-memory"><b>Ghi nhớ nhanh</b><span>' + escapeHtml(aid.memoryAnchor) + "</span></div>" : "";
     return '<div class="learning-scrim" id="learning-scrim" hidden></div><aside class="learning-drawer" id="learning-drawer" role="dialog" aria-modal="true" aria-labelledby="learning-title" aria-hidden="true">' +
       '<div class="learning-drawer-head"><div><p class="eyebrow">LEARNING LENS <span class="learning-checked">✓ ĐÃ KIỂM TRA</span></p><h2 id="learning-title">Tách lớp suy luận</h2></div><button type="button" class="learning-close" id="close-learning" aria-label="Đóng gợi ý học sâu">×</button></div>' +
       '<div class="learning-tabs" role="tablist" aria-label="Nội dung gợi ý học sâu"><button type="button" class="learning-tab active" id="deep-learning-tab" role="tab" aria-selected="true" aria-controls="deep-learning-panel">Phân tích học sâu</button><button type="button" class="learning-tab" id="real-learning-tab" role="tab" aria-selected="false" aria-controls="real-learning-panel">Ví dụ thực tế</button></div>' +
-      '<div class="learning-scroll"><section class="learning-panel" id="deep-learning-panel" role="tabpanel" aria-labelledby="deep-learning-tab"><div class="learning-summary"><strong>' + aidText(aid.summary, "Chưa có tóm tắt học sâu cho câu hỏi này.") + '</strong><p>Đáp án và giải thích ở trên là kết quả kiểm tra của câu này; phần dưới mở rộng cách suy luận.</p></div><div class="learning-section"><h3><span>01</span> Điểm cần tập trung</h3><ul>' + aidList(focus, "Chưa có điểm tập trung được cung cấp.") + '</ul></div><div class="learning-keywords">' + (keywords.length ? keywordMarkup(keywords) : '<span class="learning-fallback">Chưa có từ khóa được cung cấp.</span>') + '</div><div class="learning-section"><h3><span>02</span> Bối cảnh, yêu cầu &amp; ràng buộc</h3><p><b>Bối cảnh:</b> ' + aidText(context.context || aid.context, "Chưa có bối cảnh được cung cấp.") + '</p><div class="learning-detail-field"><b>Yêu cầu:</b>' + aidListBlock(context.requirements || aid.requirements, "Chưa có yêu cầu được cung cấp.") + '</div><div class="learning-detail-field"><b>Ràng buộc:</b>' + aidListBlock(context.constraints || aid.constraints, "Chưa có ràng buộc được cung cấp.") + '</div></div><details class="learning-translation"><summary>↗ Xem bản dịch tiếng Việt của câu hỏi &amp; lựa chọn</summary><div><p><b>Câu hỏi:</b> ' + aidText(translation.stem || translation.question, "Chưa có bản dịch câu hỏi.") + '</p>' + (options ? "<p><b>Lựa chọn:</b></p><ul>" + options + "</ul>" : '<p class="learning-fallback">Chưa có bản dịch lựa chọn.</p>') + "</div></details></section>" +
-      '<section class="learning-panel" id="real-learning-panel" role="tabpanel" aria-labelledby="real-learning-tab" hidden><p class="eyebrow">ARCHITECTURE FIELD NOTE</p><h3 class="learning-real-title">' + aidText(real.title || real.scenario, "Ví dụ kiến trúc thực tế") + '</h3><div class="learning-real-copy"><p><b>Tình huống:</b> ' + aidText(real.scenario, "Chưa có tình huống thực tế được cung cấp.") + '</p><p><b>Thách thức:</b> ' + aidText(real.challenge, "Chưa có thách thức được cung cấp.") + '</p><p><b>Nguyên tắc &amp; trade-off:</b> ' + aidText(real.principle || real.tradeoffs, "Chưa có phân tích trade-off được cung cấp.") + '</p></div><div class="learning-takeaway"><b>Bài học:</b> ' + aidText(real.takeaway, "Chưa có takeaway được cung cấp.") + "</div></section></div>" +
+      '<div class="learning-scroll"><section class="learning-panel" id="deep-learning-panel" role="tabpanel" aria-labelledby="deep-learning-tab"><div class="learning-summary"><strong>' + aidText(aid.summary, "Chưa có tóm tắt học sâu cho câu hỏi này.") + '</strong><p>Đáp án và giải thích ở trên là kết quả kiểm tra của câu này; phần dưới mở rộng cách suy luận.</p></div>' + reasoningMarkup + correctMarkup + '<div class="learning-keywords">' + (keywords.length ? keywordMarkup(keywords) : '<span class="learning-fallback">Chưa có từ khóa được cung cấp.</span>') + '</div>' + memoryMarkup + (v2Details ? '<div class="learning-disclosures">' + v2Details + "</div>" : "") + '<div class="learning-section"><h3><span>' + (reasoning.length ? "03" : "02") + '</span> Bối cảnh, yêu cầu &amp; ràng buộc</h3><p><b>Bối cảnh:</b> ' + aidText(context.context || aid.context, "Chưa có bối cảnh được cung cấp.") + '</p><div class="learning-detail-field"><b>Yêu cầu:</b>' + aidListBlock(context.requirements || aid.requirements, "Chưa có yêu cầu được cung cấp.") + '</div><div class="learning-detail-field"><b>Ràng buộc:</b>' + aidListBlock(context.constraints || aid.constraints, "Chưa có ràng buộc được cung cấp.") + '</div></div><details class="learning-translation"><summary>↗ Xem bản dịch tiếng Việt của câu hỏi &amp; lựa chọn</summary><div><p><b>Câu hỏi:</b> ' + aidText(translation.stem || translation.question, "Chưa có bản dịch câu hỏi.") + '</p>' + (options ? "<p><b>Lựa chọn:</b></p><ul>" + options + "</ul>" : '<p class="learning-fallback">Chưa có bản dịch lựa chọn.</p>') + "</div></details></section>" +
+      '<section class="learning-panel" id="real-learning-panel" role="tabpanel" aria-labelledby="real-learning-tab" hidden><p class="eyebrow">ARCHITECTURE FIELD NOTE</p><h3 class="learning-real-title">' + aidText(real.title || real.scenario, "Ví dụ kiến trúc thực tế") + '</h3><div class="learning-real-copy"><p><b>Tình huống:</b> ' + aidText(real.scenario, "Chưa có tình huống thực tế được cung cấp.") + '</p><p><b>Thách thức:</b> ' + aidText(real.challenge, "Chưa có thách thức thực tế được cung cấp.") + '</p><p><b>Nguyên tắc:</b> ' + aidText(real.principle, real.tradeoffs ? "" : "Chưa có nguyên tắc được cung cấp.") + '</p>' + (real.tradeoffs ? '<p><b>Trade-off:</b> ' + escapeHtml(real.tradeoffs) + "</p>" : "") + (real.recommendation ? '<p><b>Khuyến nghị:</b> ' + escapeHtml(real.recommendation) + "</p>" : "") + '</div><div class="learning-takeaway"><b>Bài học:</b> ' + aidText(real.takeaway, "Chưa có takeaway được cung cấp.") + "</div></section></div>" +
       '<div class="learning-drawer-foot"><span>Gợi ý chỉ mở sau khi kiểm tra</span><button type="button" class="button primary" id="close-learning-foot">Đóng</button></div></aside>';
   }
 

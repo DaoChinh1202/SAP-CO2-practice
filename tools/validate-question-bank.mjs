@@ -74,6 +74,47 @@ for (const filename of testFiles) {
     if (!aid.realWorld || ["scenario", "challenge", "principle", "takeaway"].some((field) => !hasText(aid.realWorld[field]))) {
       errors.push(`${prefix}: learningAid needs a complete real-world example`);
     }
+    if (aid.schemaVersion !== 2) {
+      errors.push(`${prefix}: learningAid schemaVersion must be 2`);
+    }
+    if (!Array.isArray(aid.reasoning) || aid.reasoning.length < 2 || aid.reasoning.length > 5 ||
+        aid.reasoning.some((step) => !hasText(step?.observation) || !hasText(step?.inference))) {
+      errors.push(`${prefix}: learningAid needs 2–5 reasoning steps`);
+    }
+    const analysis = aid.answerAnalysis;
+    if (!analysis || !Array.isArray(analysis.correct) || !Array.isArray(analysis.alternatives)) {
+      errors.push(`${prefix}: learningAid needs answer analysis`);
+    } else {
+      const correctIds = analysis.correct.map((item) => item.id);
+      const alternativeIds = analysis.alternatives.map((item) => item.id);
+      const coveredIds = correctIds.concat(alternativeIds);
+      if (analysis.correct.some((item) => !hasText(item?.why)) ||
+          analysis.alternatives.some((item) => !hasText(item?.failsBecause)) ||
+          correctIds.length !== question.correctAnswers.length ||
+          correctIds.some((id) => !question.correctAnswers.includes(id)) ||
+          coveredIds.length !== optionIds.length ||
+          new Set(coveredIds).size !== coveredIds.length ||
+          coveredIds.some((id) => !optionIds.includes(id))) {
+        errors.push(`${prefix}: answer analysis must cover each option exactly once and match the answer key`);
+      }
+      if (question.requiredAnswers > 1 && !hasText(analysis.combinationLogic)) {
+        errors.push(`${prefix}: multi-select question needs combination logic`);
+      }
+    }
+    if (!Array.isArray(aid.examTraps) || aid.examTraps.length < 1 || aid.examTraps.length > 3 ||
+        aid.examTraps.some((trap) => !hasText(trap?.cue) || !hasText(trap?.avoid))) {
+      errors.push(`${prefix}: learningAid needs 1–3 exam traps`);
+    }
+    if (!Array.isArray(aid.serviceBoundaries) || aid.serviceBoundaries.length < 1 || aid.serviceBoundaries.length > 4 ||
+        aid.serviceBoundaries.some((boundary) => !hasText(boundary?.service) || !hasText(boundary?.useWhen) || !hasText(boundary?.notFor))) {
+      errors.push(`${prefix}: learningAid needs 1–4 service boundaries`);
+    }
+    if (!hasText(aid.memoryAnchor) || aid.memoryAnchor.length > 260) {
+      errors.push(`${prefix}: learningAid needs a concise memory anchor`);
+    }
+    if (!aid.realWorld || !hasText(aid.realWorld.recommendation) || !hasText(aid.realWorld.tradeoffs)) {
+      errors.push(`${prefix}: real-world example needs recommendation and trade-offs`);
+    }
   }
 }
 
